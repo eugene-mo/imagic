@@ -7,5 +7,5 @@ export class Task {
     id: number
 
     @OneToOne(() => Quest, (quest) => quest.task)
-    quest: Quest
+    quests: Quest
 }

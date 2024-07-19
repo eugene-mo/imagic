@@ -12,6 +12,8 @@ import { TaskTypeModule } from './task-type/task-type.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
+import { JobModule } from './job/job.module';
+import { ProductionMethodModule } from './production-method/production-method.module';
 
 @Module({
   imports: [
@@ -31,7 +33,9 @@ import { join } from 'path';
         entities: [join(process.cwd(), 'dist/**/*.entity{.ts,.js}')],
       }),
       inject: [ConfigService]
-    })
+    }),
+    JobModule,
+    ProductionMethodModule
   ],
   controllers: [AppController],
   providers: [AppService],
