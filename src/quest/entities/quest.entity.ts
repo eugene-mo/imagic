@@ -25,7 +25,7 @@ export class Quest {
     solvedAt: Date
 
     //link to Task entity where stored the description of quest (it can be text description or another image with task) | Every quest have 1 task description
-    @OneToOne(() => Task, (task) => task.quests)
+    @OneToOne(() => Task, (task) => task.quest)
     @JoinColumn({ name: 'task_id' })
     task: Task
 

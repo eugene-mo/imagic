@@ -1,5 +1,6 @@
 import { Quest } from "src/quest/entities/quest.entity";
-import { Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { TaskType } from "src/task-type/entities/task-type.entity";
+import { Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Captcha {
@@ -8,4 +9,7 @@ export class Captcha {
 
     @OneToMany(() => Quest, (quest) => quest.captcha)
     quests: Quest[]
+
+    @ManyToMany(() => TaskType, (taskType) => taskType.captchas)
+    taskTypes: TaskType[]
 }
