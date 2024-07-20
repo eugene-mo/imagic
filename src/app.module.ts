@@ -14,6 +14,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { JobModule } from './job/job.module';
 import { ProductionMethodModule } from './production-method/production-method.module';
+import { CaptchaProviderModule } from './captcha-provider/captcha-provider.module';
+import { SolutionTypeModule } from './solution-type/solution-type.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -35,7 +38,10 @@ import { ProductionMethodModule } from './production-method/production-method.mo
       inject: [ConfigService]
     }),
     JobModule,
-    ProductionMethodModule
+    ProductionMethodModule,
+    CaptchaProviderModule,
+    SolutionTypeModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],

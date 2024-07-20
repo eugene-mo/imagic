@@ -1,6 +1,7 @@
 import { Quest } from "src/quest/entities/quest.entity";
+import { SourceService } from "src/source-service/entities/source-service.entity";
 import { TaskType } from "src/task-type/entities/task-type.entity";
-import { Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Captcha {
@@ -12,4 +13,19 @@ export class Captcha {
 
     @ManyToMany(() => TaskType, (taskType) => taskType.captchas)
     taskTypes: TaskType[]
+
+    // maximum number of images that can be stored on server
+    @Column()
+    imageLimit: number
+
+    // how many images of captcha type currently stored on server
+    @Column()
+    imageNum: number
+
+    @ManyToMany(() => SourceService, (sourceService) => sourceService.captchas)
+    @JoinColumn({ name: 'source_service_ids' })
+    sourceServices: SourceService[]
+
+    //example of captcha images stored in ../static/captcha-image/__captcha_id.jpg
+
 }
