@@ -1,40 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes, ValidationPipe } from '@nestjs/common';
 import { QuestService } from './quest.service';
 import { CreateQuestDto } from './dto/create-quest.dto';
 import { UpdateQuestDto } from './dto/update-quest.dto';
-import { UploadInterceptor } from 'src/_global/upload/upload.interceptor';
-import { plainToInstance } from 'class-transformer';
-import { validate } from 'class-validator';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
+import { FormDataRequest } from 'nestjs-form-data';
 
 @Controller('quest')
 export class QuestController {
   constructor(private readonly questService: QuestService) { }
 
   @Post()
-  @UseInterceptors(FileInterceptor('questImage', {
-    storage: diskStorage({
-      destination: './static/original-image/',
-      filename: (req, file, callback) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = extname(file.originalname);
-        callback(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
-      },
-    }),
-  }))
-  async uploadFile(@UploadedFile() file: Express.Multer.File, @Body() body: any) {
-    const createQuestDto = plainToInstance(CreateQuestDto, { ...body, questImage: file });
-
-    const errors = await validate(createQuestDto);
-    if (errors.length > 0) {
-      throw new BadRequestException(errors);
-    }
-
-    console.log(file);
-    console.log(body);
-    return { message: 'File uploaded successfully!', file, body };
+  @UsePipes(new ValidationPipe())
+  @FormDataRequest()
+  async uploadFile(@Body() createQuestDto: CreateQuestDto) {
+    return this.questService.createQuest(createQuestDto)
   }
 
   @Get()

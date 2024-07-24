@@ -1,6 +1,9 @@
+import { ConfigService } from '@nestjs/config';
 import { IsNotEmpty, IsOptional, IsString, Validate } from 'class-validator';
-import { IsJpgFile } from '../validator/IsJpgFile.validator';
-import { OneOfTwoFields } from '../validator/OneOfTwoFileds.validator';
+import { FileSystemStoredFile, HasMimeType, IsFile, MaxFileSize } from 'nestjs-form-data';
+
+const QUEST_IMG_MAX_SIZE_BYTES = 3 * 1024 * 1024;
+const TASK_IMG_MAX_SIZE_BYTES = 1 * 1024 * 1024;
 
 export class CreateQuestDto {
   @IsNotEmpty()
@@ -12,16 +15,18 @@ export class CreateQuestDto {
   captcha: string;
 
   @IsNotEmpty()
-  @IsJpgFile({ message: "'questImage' should be jpeg image" })
-  questImage: any;
+  @IsFile()
+  @MaxFileSize(QUEST_IMG_MAX_SIZE_BYTES)
+  @HasMimeType(['image/jpeg', 'image/png'])
+  questImage: FileSystemStoredFile;
 
   @IsOptional()
-  @IsJpgFile({ message: "'taskImage' should be jpeg image" })
-//   @Validate(OneOfTwoFields, ['taskText'])
-  taskImage?: any;
+  @IsFile()
+  @MaxFileSize(TASK_IMG_MAX_SIZE_BYTES)
+  @HasMimeType(['image/jpeg', 'image/png'])
+  taskImage?: FileSystemStoredFile;
 
   @IsOptional()
   @IsString()
-//   @Validate(OneOfTwoFields, ['taskImage'])
   taskText?: string;
 }
