@@ -4,47 +4,41 @@ import { UpdateCaptchaDto } from './dto/update-captcha.dto';
 import { Captcha } from './entities/captcha.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CaptchaProvider } from 'src/captcha-provider/entities/captcha-provider.entity';
+import { CaptchaProviderService } from 'src/captcha-provider/captcha-provider.service';
 
 @Injectable()
 export class CaptchaService {
   constructor(
+    private readonly captchaProviderService: CaptchaProviderService,
     @InjectRepository(Captcha)
-    private readonly captcha: Repository<Captcha>,
-    @InjectRepository(CaptchaProvider)
-    private readonly captchaProvider: Repository<CaptchaProvider>
+    private readonly captcha: Repository<Captcha>
   ) { }
 
   async create(createCaptchaDto: CreateCaptchaDto) {
     const captchaName = createCaptchaDto.name;
-    const providerExist = await this.captcha.findOne({
-      where: {
-        name: captchaName
-      }
-    })
+    const providerName = createCaptchaDto.captchaProvider;
+    const imageLimit = createCaptchaDto.imageLimit;
 
-    if (providerExist) {
+    const captchaExist = await this.isCaptchaExist({ name: captchaName });
+
+    if (captchaExist) {
       return new BadRequestException(`Captcha with name '${captchaName}' already exist!`)
     }
 
-    const captchaProvider = await this.captchaProvider.findOne({
-      where: {
-        name: createCaptchaDto.captchaProvider
-      }
-    });
+    const captchaProvider = await this.captchaProviderService.isCaptchaProviderExist({ name: providerName })
 
     if (!captchaProvider) {
-      return new BadRequestException(`Captcha provider with name '${createCaptchaDto.captchaProvider}' not found!`)
+      return new BadRequestException(`Captcha provider with name '${providerName}' not found!`)
     }
 
-    const newProvider = await this.captcha.save({
+    const newCaptcha = await this.captcha.save({
       name: captchaName,
       provider: captchaProvider,
-      imageNum: 0,
-      imageLimit: createCaptchaDto.imageLimit
+      imageLimit: imageLimit,
+      imageNum: 0
     });
 
-    return newProvider;
+    return newCaptcha;
   }
 
   async findAll() {
@@ -61,5 +55,14 @@ export class CaptchaService {
 
   remove(id: number) {
     return `This action removes a #${id} captcha`;
+  }
+
+  async isCaptchaExist(UpdateCaptchaDto) {
+    const captcha = await this.captcha.findOne({ where: UpdateCaptchaDto });
+    if (captcha) {
+      return captcha;
+    } else {
+      return false;
+    }
   }
 }

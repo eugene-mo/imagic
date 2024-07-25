@@ -6,9 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([CaptchaProvider])
+    TypeOrmModule.forFeature([CaptchaProvider]), CaptchaProviderModule
   ],
   controllers: [CaptchaProviderController],
   providers: [CaptchaProviderService],
+  exports: [CaptchaProviderService],
 })
 export class CaptchaProviderModule { }

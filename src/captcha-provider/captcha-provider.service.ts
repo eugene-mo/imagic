@@ -46,4 +46,13 @@ export class CaptchaProviderService {
   remove(id: number) {
     return `This action removes a #${id} captchaProvider`;
   }
+
+  async isCaptchaProviderExist(updateCaptchaProviderDto) {
+    const provider = await this.captchaProvider.findOne({ where: updateCaptchaProviderDto });
+    if (provider) {
+      return provider;
+    } else {
+      return false;
+    }
+  }
 }
