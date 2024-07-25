@@ -14,11 +14,7 @@ export class CaptchaProviderService {
 
   async create(createCaptchaProviderDto: CreateCaptchaProviderDto) {
     const captchaProviderName = createCaptchaProviderDto.name;
-    const providerExist = await this.captchaProvider.findOne({
-      where: {
-        name: captchaProviderName
-      }
-    })
+    const providerExist = await this.isCaptchaProviderExist({ name: captchaProviderName })
 
     if (providerExist) {
       return new BadRequestException(`Captcha provider with name "${captchaProviderName}" already exist!`)
@@ -31,7 +27,7 @@ export class CaptchaProviderService {
     return newProvider;
   }
 
-  async findAll() {
+  async findAll(): Promise<CaptchaProvider[]> {
     return await this.captchaProvider.find();
   }
 
@@ -47,7 +43,7 @@ export class CaptchaProviderService {
     return `This action removes a #${id} captchaProvider`;
   }
 
-  async isCaptchaProviderExist(updateCaptchaProviderDto) {
+  async isCaptchaProviderExist(updateCaptchaProviderDto): Promise<Boolean | CaptchaProvider> {
     const provider = await this.captchaProvider.findOne({ where: updateCaptchaProviderDto });
     if (provider) {
       return provider;

@@ -14,7 +14,7 @@ export class CaptchaService {
     private readonly captcha: Repository<Captcha>
   ) { }
 
-  async create(createCaptchaDto: CreateCaptchaDto) {
+  async create(createCaptchaDto: CreateCaptchaDto): Promise<Captcha | BadRequestException> {
     const captchaName = createCaptchaDto.name;
     const providerName = createCaptchaDto.captchaProvider;
     const imageLimit = createCaptchaDto.imageLimit;
@@ -41,7 +41,7 @@ export class CaptchaService {
     return newCaptcha;
   }
 
-  async findAll() {
+  async findAll(): Promise<Captcha[]> {
     return await this.captcha.find();
   }
 
@@ -57,7 +57,7 @@ export class CaptchaService {
     return `This action removes a #${id} captcha`;
   }
 
-  async isCaptchaExist(UpdateCaptchaDto) {
+  async isCaptchaExist(UpdateCaptchaDto): Promise<Boolean | Captcha> {
     const captcha = await this.captcha.findOne({ where: UpdateCaptchaDto });
     if (captcha) {
       return captcha;

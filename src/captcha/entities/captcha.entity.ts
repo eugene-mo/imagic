@@ -32,7 +32,7 @@ export class Captcha {
 
     @ManyToOne(() => CaptchaProvider, (captchaProvider) => captchaProvider.captchas)
     @JoinColumn({ name: 'provider_id' })
-    provider: CaptchaProvider
+    provider: CaptchaProvider | Boolean
 
     //example of captcha images stored in ../static/captcha-image/__captcha_id.jpg
 
