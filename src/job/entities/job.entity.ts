@@ -1,6 +1,5 @@
 import { ProductionLine } from "src/production-line/entities/production-line.entity";
 import { Quest } from "src/quest/entities/quest.entity";
-import { TaskType } from "src/task-type/entities/task-type.entity";
 import { Task } from "src/task/entities/task.entity";
 import { Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
@@ -17,11 +16,7 @@ export class Job {
     @ManyToOne(() => ProductionLine, (productionLine) => productionLine.jobs)
     @JoinColumn({ name: 'production_line_id' })
     productionLine: ProductionLine
-
-    @ManyToOne(() => TaskType, (taskType) => taskType.jobs)
-    @JoinColumn({ name: 'task_type_id' })
-    taskType: TaskType
-
+    
     @ManyToOne(() => Task, (task) => task.jobs)
     @JoinColumn({ name: 'task_id' })
     task: Task

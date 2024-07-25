@@ -1,7 +1,7 @@
+import { Captcha } from "src/captcha/entities/captcha.entity";
 import { Job } from "src/job/entities/job.entity";
 import { Quest } from "src/quest/entities/quest.entity";
-import { TaskType } from "src/task-type/entities/task-type.entity";
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Task {
@@ -13,19 +13,14 @@ export class Task {
     quest: Quest
 
     //example - unique text task / unique image task 
-    @ManyToOne(() => TaskType, (taskType) => taskType.tasks)
-    @JoinColumn({ name: 'task_type_id' })
-    type: TaskType
+    //if task has image task description - image will be located by address ../static/task-image/__quest_id.jpeg
+    @Column()
+    type: string
+
+    @ManyToMany(() => Captcha, (captcha) => captcha.tasks)
+    captchas: Captcha[]
 
     @OneToMany(() => Job, (job) => job.task)
     @JoinColumn({ name: 'job_ids' })
     jobs: Job[]
-
-    //if task has not classified text description and cant be 'typed' - task description text will be written to "uniqueText" column
-    @Column()
-    uniqueText: string
-
-    //if task has image task description - image will be located by address ../static/task-image/__quest_id.jpeg
-    @Column()
-    uniqueImage: Boolean
 }

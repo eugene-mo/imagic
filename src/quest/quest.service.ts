@@ -6,7 +6,7 @@ import { Quest } from './entities/quest.entity';
 import { Repository } from 'typeorm';
 import { SourceServiceService } from 'src/source-service/source-service.service';
 import { CaptchaService } from 'src/captcha/captcha.service';
-import { TaskTypeService } from 'src/task-type/task-type.service';
+import { TaskService } from 'src/task/task.service';
 
 @Injectable()
 export class QuestService {
@@ -16,7 +16,7 @@ export class QuestService {
     private readonly questRepository: Repository<Quest>,
     private readonly sourceServiceService: SourceServiceService,
     private readonly captchaService: CaptchaService,
-    private readonly taskTypeService: TaskTypeService
+    private readonly taskService: TaskService
   ) { }
 
   async createQuest(createQuestDto: any) {
@@ -44,7 +44,7 @@ export class QuestService {
 
   async isCanCreateNewQuest(createQuestDto: CreateQuestDto): Promise<Boolean | BadRequestException> {
     const { questImage, service, taskText, captcha } = createQuestDto;
-    var serviceExist, taskTextTypeExist, captchaExist;
+    var serviceExist, taskExist, captchaExist;
 
     var errors = [];
 
