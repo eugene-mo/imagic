@@ -13,6 +13,7 @@ import { SourceService } from 'src/source-service/entities/source-service.entity
 
 @Injectable()
 export class QuestService {
+
   constructor(
     @InjectRepository(Quest)
     private readonly questRepository: Repository<Quest>,
@@ -21,9 +22,9 @@ export class QuestService {
     @InjectRepository(Captcha)
     private readonly captchaRepository: Repository<Captcha>,
     @InjectRepository(SourceService)
-    private readonly sourceServiceRepository: Repository<SourceService>,
-    // private readonly jwtService: JwtService,
+    private readonly sourceServiceRepository: Repository<SourceService>
   ) { }
+
   async createQuest(createQuestDto: any) {
     const { questImage, service, taskText, captcha } = createQuestDto;
     var errors = [];
@@ -37,7 +38,9 @@ export class QuestService {
             }
           }
         )
-        errors.push('Service not found!');
+        if (!serviceExist) {
+          errors.push('Service not found!');
+        }
         return serviceExist;
       })(),
       (async () => {
@@ -46,7 +49,9 @@ export class QuestService {
             name: captcha
           }
         })
-        errors.push('Captcha not found!');
+        if (!captchaExist) {
+          errors.push('Captcha not found!');
+        }
         return captchaExist;
       })(),
       (async () => {
@@ -59,16 +64,17 @@ export class QuestService {
       })()
     ]);
 
-    console.log('Quest Create Errors:', errors)
-    if (errors) {
+    if (errors.length) {
+      console.log('Quest Create Errors:', errors)
       return new BadRequestException({ message: errors })
     }
 
+    return createQuestDto
 
   }
 
-  findAll() {
-    return `This action returns all quest`;
+  async findAll() {
+    return await this.questRepository.find();
   }
 
   findOne(id: number) {

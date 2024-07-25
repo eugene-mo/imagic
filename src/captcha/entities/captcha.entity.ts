@@ -12,12 +12,6 @@ export class Captcha {
     @Column()
     name: string
 
-    @OneToMany(() => Quest, (quest) => quest.captcha)
-    quests: Quest[]
-
-    @ManyToMany(() => TaskType, (taskType) => taskType.captchas)
-    taskTypes: TaskType[]
-
     // maximum number of images that can be stored on server
     @Column()
     imageLimit: number
@@ -25,6 +19,12 @@ export class Captcha {
     // how many images of captcha type currently stored on server
     @Column()
     imageNum: number
+
+    @OneToMany(() => Quest, (quest) => quest.captcha)
+    quests: Quest[]
+
+    @ManyToMany(() => TaskType, (taskType) => taskType.captchas)
+    taskTypes: TaskType[]
 
     @ManyToMany(() => SourceService, (sourceService) => sourceService.captchas)
     @JoinColumn({ name: 'source_service_ids' })
