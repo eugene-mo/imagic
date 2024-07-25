@@ -12,5 +12,6 @@ import { SourceService } from 'src/source-service/entities/source-service.entity
   imports: [TypeOrmModule.forFeature([Captcha, CaptchaProvider, SourceService])],
   controllers: [CaptchaController],
   providers: [CaptchaService, CaptchaProviderService, SourceServiceService],
+  exports: [CaptchaService]
 })
 export class CaptchaModule { }

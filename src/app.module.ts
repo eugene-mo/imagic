@@ -17,11 +17,13 @@ import { ProductionMethodModule } from './production-method/production-method.mo
 import { CaptchaProviderModule } from './captcha-provider/captcha-provider.module';
 import { SolutionTypeModule } from './solution-type/solution-type.module';
 import { AuthModule } from './auth/auth.module';
+import { MemoryStoredFile, NestjsFormDataModule } from 'nestjs-form-data';
 
 @Module({
   imports: [
     QuestModule, ProductionLineModule, CaptchaModule, SourceServiceModule, UserModule,
     SolutionModule, TaskModule, TaskTypeModule, ConfigModule.forRoot({ isGlobal: true }),
+    NestjsFormDataModule.config({ storage: MemoryStoredFile }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
