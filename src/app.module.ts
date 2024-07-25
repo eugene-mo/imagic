@@ -8,7 +8,6 @@ import { SourceServiceModule } from './source-service/source-service.module';
 import { UserModule } from './user/user.module';
 import { SolutionModule } from './solution/solution.module';
 import { TaskModule } from './task/task.module';
-import { TaskTypeModule } from './task-type/task-type.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { join } from 'path';
@@ -22,7 +21,7 @@ import { MemoryStoredFile, NestjsFormDataModule } from 'nestjs-form-data';
 @Module({
   imports: [
     QuestModule, ProductionLineModule, CaptchaModule, SourceServiceModule, UserModule,
-    SolutionModule, TaskModule, TaskTypeModule, ConfigModule.forRoot({ isGlobal: true }),
+    SolutionModule, TaskModule, ConfigModule.forRoot({ isGlobal: true }),
     NestjsFormDataModule.config({ storage: MemoryStoredFile }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
