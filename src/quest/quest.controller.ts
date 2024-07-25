@@ -9,7 +9,6 @@ export class QuestController {
   constructor(private readonly questService: QuestService) { }
 
   @Post()
-  @UsePipes(new ValidationPipe())
   @FormDataRequest()
   async uploadFile(@Body() createQuestDto: CreateQuestDto) {
     return this.questService.createQuest(createQuestDto)

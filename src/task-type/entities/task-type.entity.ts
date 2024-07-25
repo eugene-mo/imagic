@@ -12,7 +12,7 @@ export class TaskType {
 
     //example: find horse, find flower
     @Column()
-    description: string
+    text: string
 
     @ManyToMany(() => Captcha, (captcha) => captcha.taskTypes)
     captchas: Captcha[]

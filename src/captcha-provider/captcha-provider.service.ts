@@ -1,15 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCaptchaProviderDto } from './dto/create-captcha-provider.dto';
 import { UpdateCaptchaProviderDto } from './dto/update-captcha-provider.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CaptchaProvider } from './entities/captcha-provider.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class CaptchaProviderService {
-  create(createCaptchaProviderDto: CreateCaptchaProviderDto) {
-    return 'This action adds a new captchaProvider';
+  constructor(
+    @InjectRepository(CaptchaProvider)
+    private readonly captchaProvider: Repository<CaptchaProvider>
+  ) { }
+
+  async create(createCaptchaProviderDto: CreateCaptchaProviderDto) {
+    const captchaProviderName = createCaptchaProviderDto.name;
+    const providerExist = await this.captchaProvider.findOne({
+      where: {
+        name: captchaProviderName
+      }
+    })
+
+    if (providerExist) {
+      return new BadRequestException(`Captcha provider with name "${captchaProviderName}" already exist!`)
+    }
+
+    const newProvider = await this.captchaProvider.save({
+      name: captchaProviderName
+    });
+
+    return newProvider;
   }
 
-  findAll() {
-    return `This action returns all captchaProvider`;
+  async findAll() {
+    return await this.captchaProvider.find();
   }
 
   findOne(id: number) {

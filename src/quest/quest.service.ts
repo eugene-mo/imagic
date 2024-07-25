@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateQuestDto } from './dto/create-quest.dto';
 import { UpdateQuestDto } from './dto/update-quest.dto';
 import { diskStorage } from 'multer';
@@ -24,33 +24,47 @@ export class QuestService {
     private readonly sourceServiceRepository: Repository<SourceService>,
     // private readonly jwtService: JwtService,
   ) { }
-  createQuest(createQuestDto: any) {
-    const { questImage, ...other } = createQuestDto;
-    const { buffer, ...imgInfo } = questImage;
-    return { other, questImage: imgInfo }
-    //   const fieldName = 'questImage', destination = './static/original-image/', filenamePrefix = 'questImage';
-    //   // diskStorage({
-    //   //   destination,
-    //   //   filename: (req, file, callback) => {
-    //   //     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    //   //     const ext = extname(file.originalname);
-    //   //     callback(null, `test-image.jpg`);
-    //   //   },
-    //   console.log('REQUEST POST')
-    //   console.log(createQuestDto)
-    //   // })
+  async createQuest(createQuestDto: any) {
+    const { questImage, service, taskText, captcha } = createQuestDto;
+    var errors = [];
+    var serviceExist, taskTextTypeExist, captchaExist;
+    await Promise.all([
+      (async () => {
+        serviceExist = await this.sourceServiceRepository.findOne(
+          {
+            where: {
+              name: service
+            }
+          }
+        )
+        errors.push('Service not found!');
+        return serviceExist;
+      })(),
+      (async () => {
+        captchaExist = await this.captchaRepository.findOne({
+          where: {
+            name: captcha
+          }
+        })
+        errors.push('Captcha not found!');
+        return captchaExist;
+      })(),
+      (async () => {
+        taskTextTypeExist = await this.taskTypeRepository.findOne({
+          where: {
+            text: taskText
+          }
+        })
+        return taskTextTypeExist;
+      })()
+    ]);
 
-    //   FileInterceptor(fieldName, {
-    //     storage: diskStorage({
-    //       destination,
-    //       filename: (req, file, callback) => {
-    //         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    //         const ext = extname(file.originalname);
-    //         callback(null, `${filenamePrefix}-${uniqueSuffix}${ext}`);
-    //       },
-    //     }),
-    //   });
-    return 'asdasd'
+    console.log('Quest Create Errors:', errors)
+    if (errors) {
+      return new BadRequestException({ message: errors })
+    }
+
+
   }
 
   findAll() {
