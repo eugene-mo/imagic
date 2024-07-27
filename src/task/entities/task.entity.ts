@@ -8,14 +8,17 @@ export class Task {
     @PrimaryGeneratedColumn({ name: 'task_id' })
     id: number
 
-    @OneToOne(() => Quest, (quest) => quest.task)
+    @OneToMany(() => Quest, (quest) => quest.task)
     @JoinColumn({ name: 'quest_id' })
-    quest: Quest
+    quest: Quest[]
 
-    //example - unique text task / unique image task 
-    //if task has image task description - image will be located by address ../static/task-image/__quest_id.jpeg
+    //example: image text / text / image | (image text* not ready yet - task type is text, but he provided as an image on service side)
+    //if task has image ('image text' & 'image types') - image will be located by address ../static/task-image/__quest_id.jpeg
     @Column()
     type: string
+
+    @Column()
+    text?: string
 
     @ManyToMany(() => Captcha, (captcha) => captcha.tasks)
     captchas: Captcha[]
