@@ -12,10 +12,11 @@ export class SourceServiceService {
     private readonly sourceServiceRepository: Repository<SourceService>
   ) { }
 
-  async create(createSourceServiceDto: CreateSourceServiceDto): Promise<SourceService> {
+  async create(createSourceServiceDto: CreateSourceServiceDto, checkExist = true): Promise<SourceService> {
     console.log('Creating new service')
     const serviceName = createSourceServiceDto.name;
-    const sourceServiceExist = await this.isSourceServiceExist({ name: serviceName })
+    var sourceServiceExist = null;
+    if (checkExist) { sourceServiceExist = await this.isSourceServiceExist({ name: serviceName }) }
 
     if (sourceServiceExist) {
       new BadRequestException(`Source Service with nae '${serviceName} already exist!`)

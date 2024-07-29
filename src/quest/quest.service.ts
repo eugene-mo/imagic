@@ -8,6 +8,7 @@ import { SourceServiceService } from 'src/source-service/source-service.service'
 import { CaptchaService } from 'src/captcha/captcha.service';
 import { TaskService } from 'src/task/task.service';
 
+const DEFAULT_CAPTCHA_IMG_LIMIT = 10000;
 @Injectable()
 export class QuestService {
 
@@ -20,16 +21,26 @@ export class QuestService {
   ) { }
 
   async createQuest(createQuestDto: CreateQuestDto) {
-    const { questImage, service, taskText, captcha, taskImage } = createQuestDto;
+    const { questImage, taskImage } = createQuestDto;
+    const service = createQuestDto.service.toLowerCase();
+    const taskText = createQuestDto.taskText.toLowerCase();
+    const captcha = createQuestDto.captcha.toLowerCase();
     // var serviceExist, taskExist, captchaExist;
 
-    const serviceExist = await this.sourceServiceService.isSourceServiceExist({ name: service })
+    var serviceExist = await this.sourceServiceService.isSourceServiceExist({ name: service })
     if (!serviceExist) {
-      new BadRequestException(`Service '${service}' is not found`);
+      //create without check (because we checked before)
+      serviceExist = await this.sourceServiceService.create({ name: service }, false)
     }
-    const captchaExist = await this.captchaService.isCaptchaExist({ name: captcha, sourceServices: [serviceExist] })
+
+    var captchaExist = await this.captchaService.isCaptchaExist({ name: captcha })
     if (!captchaExist) {
-      new BadRequestException(`Service '${service}' don't have captcha '${captcha}'`)
+      captchaExist = await this.captchaService.create({ name: captcha, imageLimit: DEFAULT_CAPTCHA_IMG_LIMIT })
+    } else {
+      //if captcha exist - also check is relations between captcha and service exits - if not - add this relations
+      if (captchaExist.sourceServices.some(existingService => existingService.id === service.id)) {
+        throw new BadRequestException(`Captcha '${captchaName}' is already paired with service '${serviceName}'`);
+      }
     }
 
     const taskExist = await this.taskService.create({ image: taskImage, text: taskText })

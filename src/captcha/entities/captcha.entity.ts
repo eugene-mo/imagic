@@ -18,7 +18,7 @@ export class Captcha {
 
     // how many images of captcha type currently stored on server
     @Column()
-    imageNum: number
+    imageNum: number = 0
 
     @OneToMany(() => Quest, (quest) => quest.captcha)
     quests: Quest[]
@@ -41,7 +41,7 @@ export class Captcha {
 
     @ManyToOne(() => CaptchaProvider, (captchaProvider) => captchaProvider.captchas)
     @JoinColumn({ name: 'provider_id' })
-    provider: CaptchaProvider | Boolean
+    provider: CaptchaProvider | Boolean | null
 
     //example of captcha images stored in ../static/captcha-image/__captcha_id.jpg
 

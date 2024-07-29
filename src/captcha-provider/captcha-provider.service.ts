@@ -12,9 +12,12 @@ export class CaptchaProviderService {
     private readonly captchaProvider: Repository<CaptchaProvider>
   ) { }
 
-  async create(createCaptchaProviderDto: CreateCaptchaProviderDto) {
+  async create(createCaptchaProviderDto: CreateCaptchaProviderDto, checkExist = true) {
     const captchaProviderName = createCaptchaProviderDto.name;
-    const providerExist = await this.isCaptchaProviderExist({ name: captchaProviderName })
+    var providerExist;
+    if (checkExist) {
+      providerExist = await this.isCaptchaProviderExist({ name: captchaProviderName })
+    }
 
     if (providerExist) {
       new BadRequestException(`Captcha provider with name "${captchaProviderName}" already exist!`)

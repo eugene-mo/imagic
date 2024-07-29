@@ -1,4 +1,4 @@
-import { IsNumber, IsString, MinLength } from "class-validator";
+import { IsNumber, IsOptional, IsString, MinLength } from "class-validator";
 
 export class CreateCaptchaDto {
     @IsString()
@@ -9,5 +9,8 @@ export class CreateCaptchaDto {
     imageLimit: number
 
     @IsString()
-    captchaProvider: string
+    captchaProvider?: string | null
+
+    @IsOptional()
+    sourceServices?: string[] | null
 }

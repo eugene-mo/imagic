@@ -20,28 +20,52 @@ export class CaptchaService {
     private readonly sourceServiceRepository: Repository<SourceService>
   ) { }
 
-  async create(createCaptchaDto: CreateCaptchaDto): Promise<Captcha | BadRequestException> {
-    const captchaName = createCaptchaDto.name;
-    const providerName = createCaptchaDto.captchaProvider;
+  //creating new captcha
+  async create(createCaptchaDto: CreateCaptchaDto, checkExist = true): Promise<Captcha> {
+    const captchaName = createCaptchaDto.name?.toLowerCase();
     const imageLimit = createCaptchaDto.imageLimit;
 
-    const captchaExist = await this.isCaptchaExist({ name: captchaName });
+    const providerName = createCaptchaDto.captchaProvider?.toLowerCase() || null;
+    const sourceServices = createCaptchaDto.sourceServices || null;
 
-    if (captchaExist) {
-      new BadRequestException(`Captcha with name '${captchaName}' already exist!`)
+    //check if captcha with name 'captchaName' exist  
+    var captchaExist;
+    if (checkExist) {//if checking is required
+      captchaExist = await this.isCaptchaExist({ name: captchaName });
+      if (captchaExist) {
+        new BadRequestException(`Captcha with name '${captchaName}' already exist!`)
+      }
     }
 
-    const captchaProvider = await this.captchaProviderService.isCaptchaProviderExist({ name: providerName })
+    //check if captcha provider with name 'provider' is exist | if no - create it 
+    var captchaProvider;
+    if (checkExist && providerName) {
+      captchaProvider = await this.captchaProviderService.isCaptchaProviderExist({ name: providerName });
+      if (!captchaProvider) {
+        captchaProvider = await this.captchaProviderService.create({ name: providerName }, false);
+        // new BadRequestException(`Captcha provider with name '${providerName}' not found!`)
+      }
+    }
 
-    if (!captchaProvider) {
-      new BadRequestException(`Captcha provider with name '${providerName}' not found!`)
+    var sourceServicesDB;
+    if (checkExist && sourceServices.length) {
+      sourceServicesDB = await Promise.all(
+        sourceServices.map(async (serviceName) => {
+          let service = await this.sourceServiceService.isSourceServiceExist({ name: serviceName });
+          if (!service) {
+            service = await this.sourceServiceService.create({ name: serviceName });
+          }
+          return service;
+        })
+      );
     }
 
     const newCaptcha = await this.captchaRepository.save({
       name: captchaName,
-      provider: captchaProvider,
       imageLimit: imageLimit,
-      imageNum: 0
+      provider: captchaProvider,
+      imageNum: 0,
+      sourceServices: sourceServicesDB,
     });
 
     return newCaptcha;
