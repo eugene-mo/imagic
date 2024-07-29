@@ -2,10 +2,11 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CaptchaService } from './captcha.service';
 import { CreateCaptchaDto } from './dto/create-captcha.dto';
 import { UpdateCaptchaDto } from './dto/update-captcha.dto';
+import { pairCaptchaToServiceDto } from './dto/pair-to-service.dto';
 
 @Controller('captcha')
 export class CaptchaController {
-  constructor(private readonly captchaService: CaptchaService) {}
+  constructor(private readonly captchaService: CaptchaService) { }
 
   @Post()
   create(@Body() createCaptchaDto: CreateCaptchaDto) {
@@ -20,6 +21,11 @@ export class CaptchaController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.captchaService.findOne(+id);
+  }
+
+  @Patch('/pairToService')
+  pairToService(@Body() pairToService: pairCaptchaToServiceDto) {
+    return this.captchaService.pairToService(pairToService)
   }
 
   @Patch(':id')

@@ -18,14 +18,14 @@ export class Quest {
 
     //date when quest-image was prepared for classification (image was produced through production line) 
     @Column({ type: 'timestamptz' })
-    producedAt: Date
+    producedAt: Date | null = null
 
     //date when quest-image was fully solved and solution was added to database (object(s) on image was classified)
     @Column({ type: 'timestamptz' })
-    solvedAt: Date
+    solvedAt: Date | null = null
 
     //link to Task entity where stored the description of quest (it can be text description or another image with task) | Every quest have 1 task description
-    @OneToOne(() => Task, (task) => task.quest)
+    @ManyToOne(() => Task, (task) => task.quests)
     @JoinColumn({ name: 'task_id' })
     task: Task
 
@@ -47,10 +47,10 @@ export class Quest {
     //link to Production line id - group of image production methods that describing how original image producing to prepare it to work
     @ManyToOne(() => ProductionLine, (productionLine) => productionLine.quests)
     @JoinColumn({ name: 'production_line_id' })
-    productionLine: ProductionLine
+    productionLine?: ProductionLine
 
     //link to array of jobs that was created when original image was produced (jobs for classification)
     @OneToMany(() => Job, (job) => job.quest)
     @JoinColumn({ name: 'job_ids' })
-    jobs: Job[]
+    jobs?: Job[] | null = null
 }

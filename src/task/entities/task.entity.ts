@@ -10,7 +10,7 @@ export class Task {
 
     @OneToMany(() => Quest, (quest) => quest.task)
     @JoinColumn({ name: 'quest_id' })
-    quest: Quest[]
+    quests: Quest[]
 
     //example: image text / text / image | (image text* not ready yet - task type is text, but he provided as an image on service side)
     //if task has image ('image text' & 'image types') - image will be located by address ../static/task-image/__quest_id.jpeg

@@ -11,9 +11,9 @@ export class SourceService {
     name:string
 
     @OneToMany(() => Quest, (quest) => quest.sourceService)
-    quests: Quest[]
+    quests?: Quest[] | null
 
     @ManyToMany(() => Captcha, (captcha) => captcha.sourceServices)
     @JoinColumn({ name: 'captcha_ids' })
-    captchas: Captcha[]
+    captchas?: Captcha[] | null
 }

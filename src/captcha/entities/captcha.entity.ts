@@ -2,7 +2,7 @@ import { CaptchaProvider } from "src/captcha-provider/entities/captcha-provider.
 import { Quest } from "src/quest/entities/quest.entity";
 import { SourceService } from "src/source-service/entities/source-service.entity";
 import { Task } from "src/task/entities/task.entity";
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Captcha {
@@ -24,10 +24,19 @@ export class Captcha {
     quests: Quest[]
 
     @ManyToMany(() => Task, (task) => task.captchas)
+    @JoinTable({
+        name: 'captcha_tasks',
+        joinColumn: { name: 'captcha_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'task_id', referencedColumnName: 'id' },
+    })
     tasks: Task[]
 
     @ManyToMany(() => SourceService, (sourceService) => sourceService.captchas)
-    @JoinColumn({ name: 'source_service_ids' })
+    @JoinTable({
+        name: 'captcha_source_services',
+        joinColumn: { name: 'captcha_id', referencedColumnName: 'id' },
+        inverseJoinColumn: { name: 'source_service_id', referencedColumnName: 'id' },
+    })
     sourceServices: SourceService[]
 
     @ManyToOne(() => CaptchaProvider, (captchaProvider) => captchaProvider.captchas)

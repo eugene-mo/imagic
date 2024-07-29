@@ -6,11 +6,11 @@ export class CreateTaskDto {
     @IsOptional()
     @IsString()
     @MinLength(3)
-    taskText?: string
+    text?: string
 
     @IsOptional()
     @IsFile()
     @MaxFileSize(TASK_IMG_MAX_SIZE_BYTES)
     @HasMimeType(['image/jpeg', 'image/png'])
-    taskImage?: FileSystemStoredFile
+    image?: FileSystemStoredFile
 }

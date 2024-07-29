@@ -17,6 +17,7 @@ import { CaptchaProviderModule } from './captcha-provider/captcha-provider.modul
 import { SolutionTypeModule } from './solution-type/solution-type.module';
 import { AuthModule } from './auth/auth.module';
 import { MemoryStoredFile, NestjsFormDataModule } from 'nestjs-form-data';
+import { SaveImgModule } from './save-img/save-img.module';
 
 @Module({
   imports: [
@@ -42,7 +43,8 @@ import { MemoryStoredFile, NestjsFormDataModule } from 'nestjs-form-data';
     ProductionMethodModule,
     CaptchaProviderModule,
     SolutionTypeModule,
-    AuthModule
+    AuthModule,
+    SaveImgModule
   ],
   controllers: [AppController],
   providers: [AppService],

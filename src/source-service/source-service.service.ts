@@ -12,12 +12,13 @@ export class SourceServiceService {
     private readonly sourceServiceRepository: Repository<SourceService>
   ) { }
 
-  async create(createSourceServiceDto: CreateSourceServiceDto): Promise<SourceService | BadRequestException> {
+  async create(createSourceServiceDto: CreateSourceServiceDto): Promise<SourceService> {
+    console.log('Creating new service')
     const serviceName = createSourceServiceDto.name;
-    const sourceServiceExist = this.isSourceServiceExist({ name: serviceName })
+    const sourceServiceExist = await this.isSourceServiceExist({ name: serviceName })
 
     if (sourceServiceExist) {
-      return new BadRequestException(`Source Service with nae '${serviceName} already exist!`)
+      new BadRequestException(`Source Service with nae '${serviceName} already exist!`)
     } else {
       return await this.sourceServiceRepository.save({
         name: serviceName
@@ -26,6 +27,7 @@ export class SourceServiceService {
   }
 
   async findAll(): Promise<SourceService[]> {
+    console.log('Getting all services list')
     return await this.sourceServiceRepository.find();
   }
 
@@ -41,12 +43,8 @@ export class SourceServiceService {
     return `This action removes a #${id} sourceService`;
   }
 
-  async isSourceServiceExist(updateSourceServiceDto): Promise<Boolean | SourceService> {
+  async isSourceServiceExist(updateSourceServiceDto): Promise<SourceService> {
     const sourceService = await this.sourceServiceRepository.findOne({ where: updateSourceServiceDto });
-    if (sourceService) {
-      return sourceService;
-    } else {
-      return false;
-    }
+    return sourceService;
   }
 }
