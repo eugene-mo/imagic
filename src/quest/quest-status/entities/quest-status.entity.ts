@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Quest } from "./quest.entity";
+import { Quest } from "src/quest/entities/quest.entity";
 
 @Entity()
 export class QuestStatus {
@@ -10,10 +10,10 @@ export class QuestStatus {
     title: string
 
     @Column()
-    description: string
+    description?: string | null
 
     @OneToMany(() => Quest, (quest) => quest.status)
-    quests: Quest[]
+    quests?: Quest[] | null
 }
 
 // export interface IQuestStatus {

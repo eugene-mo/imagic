@@ -1,6 +1,13 @@
 import { IsNumber, IsOptional, IsString, MinLength } from "class-validator";
+import { CaptchaProvider } from "src/captcha-provider/entities/captcha-provider.entity";
+import { SourceService } from "src/source-service/entities/source-service.entity";
+import { Task } from "src/task/entities/task.entity";
 
 export class CreateCaptchaDto {
+    @IsOptional()
+    @IsNumber()
+    id?: number
+
     @IsString()
     @MinLength(3)
     name: string
@@ -9,8 +16,11 @@ export class CreateCaptchaDto {
     imageLimit: number
 
     @IsString()
-    captchaProvider?: string | null
+    provider?: CaptchaProvider | null = null
 
     @IsOptional()
-    sourceServices?: string[] | null
+    sourceServices?: SourceService[] | null = null
+
+    @IsOptional()
+    tasks?: Task[] | Task | null = null
 }

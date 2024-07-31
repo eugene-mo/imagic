@@ -4,6 +4,9 @@ import { FileSystemStoredFile, HasMimeType, IsFile, MaxFileSize } from "nestjs-f
 const TASK_IMG_MAX_SIZE_BYTES = 1 * 1024 * 1024
 export class CreateTaskDto {
     @IsOptional()
+    id?: number
+
+    @IsOptional()
     @IsString()
     @MinLength(3)
     text?: string

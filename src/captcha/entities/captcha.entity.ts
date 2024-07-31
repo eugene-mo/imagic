@@ -14,14 +14,14 @@ export class Captcha {
 
     // maximum number of images that can be stored on server
     @Column()
-    imageLimit: number
+    imageLimit: number | null
 
     // how many images of captcha type currently stored on server
     @Column()
     imageNum: number = 0
 
     @OneToMany(() => Quest, (quest) => quest.captcha)
-    quests: Quest[]
+    quests?: Quest[] | null
 
     @ManyToMany(() => Task, (task) => task.captchas)
     @JoinTable({
@@ -29,15 +29,15 @@ export class Captcha {
         joinColumn: { name: 'captcha_id', referencedColumnName: 'id' },
         inverseJoinColumn: { name: 'task_id', referencedColumnName: 'id' },
     })
-    tasks: Task[]
+    tasks: Task[] | null
 
     @ManyToMany(() => SourceService, (sourceService) => sourceService.captchas)
     @JoinTable({
-        name: 'captcha_source_services',
+        name: 'source_services',
         joinColumn: { name: 'captcha_id', referencedColumnName: 'id' },
         inverseJoinColumn: { name: 'source_service_id', referencedColumnName: 'id' },
     })
-    sourceServices: SourceService[]
+    sourceServices: SourceService[] | null
 
     @ManyToOne(() => CaptchaProvider, (captchaProvider) => captchaProvider.captchas)
     @JoinColumn({ name: 'provider_id' })

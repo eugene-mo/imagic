@@ -25,7 +25,7 @@ export class CaptchaService {
     const captchaName = createCaptchaDto.name?.toLowerCase();
     const imageLimit = createCaptchaDto.imageLimit;
 
-    const providerName = createCaptchaDto.captchaProvider?.toLowerCase() || null;
+    const providerName = createCaptchaDto.provider?.name || null;
     const sourceServices = createCaptchaDto.sourceServices || null;
 
     //check if captcha with name 'captchaName' exist  
@@ -51,9 +51,9 @@ export class CaptchaService {
     if (checkExist && sourceServices.length) {
       sourceServicesDB = await Promise.all(
         sourceServices.map(async (serviceName) => {
-          let service = await this.sourceServiceService.isSourceServiceExist({ name: serviceName });
+          let service = await this.sourceServiceService.isSourceServiceExist({ name: serviceName.name });
           if (!service) {
-            service = await this.sourceServiceService.create({ name: serviceName });
+            service = await this.sourceServiceService.create({ name: serviceName.name, captchas: [captchaProvider] });
           }
           return service;
         })
@@ -62,16 +62,16 @@ export class CaptchaService {
 
     const newCaptcha = await this.captchaRepository.save({
       name: captchaName,
-      imageLimit: imageLimit,
-      provider: captchaProvider,
+      imageLimit: imageLimit ? imageLimit : null,
+      provider: captchaProvider ? captchaProvider : null,
       imageNum: 0,
-      sourceServices: sourceServicesDB,
+      sourceServices: sourceServicesDB ? sourceServicesDB : null,
     });
 
     return newCaptcha;
   }
 
-  async findAll(): Promise<Captcha[]> {
+  async findAll(): Promise<Captcha[] | Captcha> {
     return await this.captchaRepository.find();
   }
 
@@ -85,7 +85,8 @@ export class CaptchaService {
       throw new NotFoundException(`Captcha with ID ${id} not found`);
     }
 
-    const { name, captchaProvider, imageLimit } = updateCaptchaDto;
+    const { name, imageLimit } = updateCaptchaDto;
+    const captchaProvider = updateCaptchaDto.provider
 
     if (name) {
       captcha.name = name;
@@ -96,7 +97,7 @@ export class CaptchaService {
     }
 
     if (captchaProvider) {
-      const provider = await this.captchaProviderService.isCaptchaProviderExist({ name: captchaProvider });
+      const provider = await this.captchaProviderService.isCaptchaProviderExist({ name: captchaProvider.name });
       if (!provider) {
         throw new BadRequestException(`Captcha provider with name '${captchaProvider}' not found`);
       }
@@ -143,8 +144,8 @@ export class CaptchaService {
     return await this.captchaRepository.remove([await this.isCaptchaExist({ id })])
   }
 
-  async isCaptchaExist(UpdateCaptchaDto): Promise<Captcha> {
-    const captcha = await this.captchaRepository.findOne({ where: UpdateCaptchaDto, relations: ['sourceServices'], });
+  async isCaptchaExist(updateCaptchaDto: UpdateCaptchaDto): Promise<Captcha> {
+    const captcha = await this.captchaRepository.findOne({ where: updateCaptchaDto, relations: ['sourceServices'], });
     if (!captcha) {
       throw new BadRequestException(`captcha '${captcha}' is not found`);
     }

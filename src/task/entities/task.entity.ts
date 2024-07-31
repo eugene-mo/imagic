@@ -1,7 +1,7 @@
 import { Captcha } from "src/captcha/entities/captcha.entity";
 import { Job } from "src/job/entities/job.entity";
 import { Quest } from "src/quest/entities/quest.entity";
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Task {
@@ -21,9 +21,9 @@ export class Task {
     text?: string
 
     @ManyToMany(() => Captcha, (captcha) => captcha.tasks)
-    captchas: Captcha[]
+    captchas?: Captcha[]
 
     @OneToMany(() => Job, (job) => job.task)
     @JoinColumn({ name: 'job_ids' })
-    jobs: Job[]
+    jobs?: Job[]
 }

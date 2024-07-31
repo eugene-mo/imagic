@@ -2,7 +2,7 @@ import { Captcha } from "src/captcha/entities/captcha.entity";
 import { SourceService } from "src/source-service/entities/source-service.entity";
 import { Task } from "src/task/entities/task.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { QuestStatus } from "./quest-status.entity";
+import { QuestStatus } from "../quest-status/entities/quest-status.entity";
 import { ProductionLine } from "src/production-line/entities/production-line.entity";
 import { Job } from "src/job/entities/job.entity";
 
@@ -18,11 +18,11 @@ export class Quest {
 
     //date when quest-image was prepared for classification (image was produced through production line) 
     @Column({ type: 'timestamptz' })
-    producedAt: Date | null = null
+    producedAt?: Date | null = null
 
     //date when quest-image was fully solved and solution was added to database (object(s) on image was classified)
     @Column({ type: 'timestamptz' })
-    solvedAt: Date | null = null
+    solvedAt?: Date | null = null
 
     //link to Task entity where stored the description of quest (it can be text description or another image with task) | Every quest have 1 task description
     @ManyToOne(() => Task, (task) => task.quests)

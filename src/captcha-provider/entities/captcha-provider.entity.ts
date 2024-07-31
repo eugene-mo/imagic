@@ -10,5 +10,5 @@ export class CaptchaProvider {
     name: string
 
     @OneToMany(() => Captcha, (captcha) => captcha.provider)
-    captchas: Captcha[]
+    captchas?: Captcha[]
 }

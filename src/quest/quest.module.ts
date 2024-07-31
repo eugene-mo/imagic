@@ -14,12 +14,15 @@ import { TaskService } from 'src/task/task.service';
 import { Task } from 'src/task/entities/task.entity';
 import { SaveImgModule } from 'src/save-img/save-img.module';
 import { SaveImgService } from 'src/save-img/save-img.service';
+import { QuestStatusService } from './quest-status/quest-status.service';
+import { QuestStatusModule } from './quest-status/quest-status.module';
+import { QuestStatus } from './quest-status/entities/quest-status.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Quest, Captcha, SourceService, CaptchaProvider, Task]), NestjsFormDataModule, SaveImgModule
+    TypeOrmModule.forFeature([Quest, Captcha, SourceService, CaptchaProvider, Task, QuestStatus]), NestjsFormDataModule, SaveImgModule, QuestStatusModule
   ],
   controllers: [QuestController],
-  providers: [QuestService, SourceServiceService, CaptchaService, CaptchaProviderService, TaskService, SaveImgService],
+  providers: [QuestService, SourceServiceService, CaptchaService, CaptchaProviderService, TaskService, SaveImgService, QuestStatusService],
 })
 export class QuestModule { }

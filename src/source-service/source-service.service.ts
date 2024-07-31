@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateSourceServiceDto } from './dto/create-source-service.dto';
 import { UpdateSourceServiceDto } from './dto/update-source-service.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -44,8 +44,12 @@ export class SourceServiceService {
     return `This action removes a #${id} sourceService`;
   }
 
-  async isSourceServiceExist(updateSourceServiceDto): Promise<SourceService> {
+  async isSourceServiceExist(updateSourceServiceDto: UpdateSourceServiceDto): Promise<SourceService> {
     const sourceService = await this.sourceServiceRepository.findOne({ where: updateSourceServiceDto });
-    return sourceService;
+    if (sourceService) {
+      return sourceService;
+    } else {
+      throw new NotFoundException(`Source service by query ${updateSourceServiceDto} is not found`)
+    }
   }
 }

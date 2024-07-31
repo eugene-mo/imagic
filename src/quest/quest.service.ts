@@ -35,11 +35,11 @@ export class QuestService {
 
     var captchaExist = await this.captchaService.isCaptchaExist({ name: captcha })
     if (!captchaExist) {
-      captchaExist = await this.captchaService.create({ name: captcha, imageLimit: DEFAULT_CAPTCHA_IMG_LIMIT })
+      captchaExist = await this.captchaService.create({ name: captcha, imageLimit: DEFAULT_CAPTCHA_IMG_LIMIT }, false)
     } else {
       //if captcha exist - also check is relations between captcha and service exits - if not - add this relations
-      if (captchaExist.sourceServices.some(existingService => existingService.id === service.id)) {
-        throw new BadRequestException(`Captcha '${captchaName}' is already paired with service '${serviceName}'`);
+      if (captchaExist.sourceServices.some(existingService => existingService.id === serviceExist.id)) {
+        throw new BadRequestException(`Captcha '${captcha}' is already paired with service '${service}'`);
       }
     }
 
@@ -51,8 +51,6 @@ export class QuestService {
       sourceService: serviceExist,
       task: taskExist,
       captcha: captchaExist,
-      producedAt: null,
-
     };
 
     try {

@@ -52,7 +52,7 @@ export class TaskService {
     return await this.taskRepository.remove(allTasks)
   }
 
-  async isTaskExist(updateTaskDto): Promise<Task> {
+  async isTaskExist(updateTaskDto: UpdateTaskDto): Promise<Task> {
     const taskExist = await this.taskRepository.findOne({ where: updateTaskDto });
     return taskExist;
   }

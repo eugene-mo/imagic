@@ -19,6 +19,12 @@ export class QuestController {
     return this.questService.findAll();
   }
 
+  // @Get('/status')
+  // findAllStatuses(){
+  //   return this.q
+  // }
+
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.questService.findOne(+id);
