@@ -18,60 +18,52 @@ export class CaptchaService {
     private readonly captchaRepository: Repository<Captcha>,
     @InjectRepository(SourceService)
     private readonly sourceServiceRepository: Repository<SourceService>
-  ) { }
+  ) {}
 
-  //creating new captcha
   async create(createCaptchaDto: CreateCaptchaDto, checkExist = true): Promise<Captcha> {
     const captchaName = createCaptchaDto.name?.toLowerCase();
     const imageLimit = createCaptchaDto.imageLimit;
 
-    const providerName = createCaptchaDto.provider?.name || null;
-    const sourceServices = createCaptchaDto.sourceServices || null;
+    const providerName = createCaptchaDto.provider || null;
+    const sourceServiceNames = createCaptchaDto.sourceServices || [];
 
-    //check if captcha with name 'captchaName' exist  
-    var captchaExist;
-    if (checkExist) {//if checking is required
-      captchaExist = await this.isCaptchaExist({ name: captchaName });
+    if (checkExist) {
+      const captchaExist = await this.isCaptchaExist({ name: captchaName });
       if (captchaExist) {
-        new BadRequestException(`Captcha with name '${captchaName}' already exist!`)
+        throw new BadRequestException(`Captcha with name '${captchaName}' already exists!`);
       }
     }
 
-    //check if captcha provider with name 'provider' is exist | if no - create it 
-    var captchaProvider;
-    if (checkExist && providerName) {
+    let captchaProvider = null;
+    if (providerName) {
       captchaProvider = await this.captchaProviderService.isCaptchaProviderExist({ name: providerName });
       if (!captchaProvider) {
         captchaProvider = await this.captchaProviderService.create({ name: providerName }, false);
-        // new BadRequestException(`Captcha provider with name '${providerName}' not found!`)
       }
     }
 
-    var sourceServicesDB;
-    if (checkExist && sourceServices.length) {
-      sourceServicesDB = await Promise.all(
-        sourceServices.map(async (serviceName) => {
-          let service = await this.sourceServiceService.isSourceServiceExist({ name: serviceName.name });
-          if (!service) {
-            service = await this.sourceServiceService.create({ name: serviceName.name, captchas: [captchaProvider] });
-          }
-          return service;
-        })
-      );
-    }
+    const sourceServices = await Promise.all(
+      sourceServiceNames.map(async ({ name }) => {
+        let service = await this.sourceServiceService.isSourceServiceExist({ name });
+        if (!service) {
+          service = await this.sourceServiceService.create({ name });
+        }
+        return service;
+      })
+    );
 
-    const newCaptcha = await this.captchaRepository.save({
+    const newCaptcha = this.captchaRepository.create({
       name: captchaName,
-      imageLimit: imageLimit ? imageLimit : null,
-      provider: captchaProvider ? captchaProvider : null,
+      imageLimit: imageLimit || null,
+      provider: captchaProvider || null,
       imageNum: 0,
-      sourceServices: sourceServicesDB ? sourceServicesDB : null,
+      sourceServices: sourceServices || null,
     });
 
-    return newCaptcha;
+    return this.captchaRepository.save(newCaptcha);
   }
 
-  async findAll(): Promise<Captcha[] | Captcha> {
+  async findAll(): Promise<Captcha[]> {
     return await this.captchaRepository.find();
   }
 
@@ -85,8 +77,7 @@ export class CaptchaService {
       throw new NotFoundException(`Captcha with ID ${id} not found`);
     }
 
-    const { name, imageLimit } = updateCaptchaDto;
-    const captchaProvider = updateCaptchaDto.provider
+    const { name, imageLimit, provider } = updateCaptchaDto;
 
     if (name) {
       captcha.name = name;
@@ -96,61 +87,48 @@ export class CaptchaService {
       captcha.imageLimit = imageLimit;
     }
 
-    if (captchaProvider) {
-      const provider = await this.captchaProviderService.isCaptchaProviderExist({ name: captchaProvider.name });
-      if (!provider) {
-        throw new BadRequestException(`Captcha provider with name '${captchaProvider}' not found`);
+    if (provider) {
+      const captchaProvider = await this.captchaProviderService.isCaptchaProviderExist({ name: provider });
+      if (!captchaProvider) {
+        throw new BadRequestException(`Captcha provider with name '${provider}' not found`);
       }
-      captcha.provider = provider;
+      captcha.provider = captchaProvider;
     }
 
-    await this.captchaRepository.save(captcha);
-    return captcha;
+    return this.captchaRepository.save(captcha);
   }
 
   async pairToService(pairToServiceDto: pairCaptchaToServiceDto): Promise<Captcha> {
     const { captchaName, serviceName } = pairToServiceDto;
 
-    // check is captcha exist 
     const captcha = await this.isCaptchaExist({ name: captchaName });
     if (!captcha) {
       throw new NotFoundException(`Captcha with name '${captchaName}' not found`);
     }
 
-    // check is source service exist
     const service = await this.sourceServiceService.isSourceServiceExist({ name: serviceName });
     if (!service) {
       throw new NotFoundException(`SourceService with name '${serviceName}' not found`);
     }
 
-    // check if pair relationships not exist
     if (captcha.sourceServices.some(existingService => existingService.id === service.id)) {
       throw new BadRequestException(`Captcha '${captchaName}' is already paired with service '${serviceName}'`);
     }
-    if (service.captchas.some(existingCaptcha => existingCaptcha.id === captcha.id)) {
-      throw new BadRequestException(`Captcha '${captchaName}' is already paired with service '${serviceName}'`);
-    }
 
-    // add relationships
     captcha.sourceServices.push(service);
-    service.captchas.push(captcha);
-    await this.sourceServiceRepository.save(service);
-    const updatedCaptcha = await this.captchaRepository.save(captcha);
-
-    return updatedCaptcha;
+    return this.captchaRepository.save(captcha);
   }
 
   async remove(id: number) {
-    return await this.captchaRepository.remove([await this.isCaptchaExist({ id })])
+    const captcha = await this.isCaptchaExist({ id });
+    if (!captcha) {
+      throw new NotFoundException(`Captcha with ID ${id} not found`);
+    }
+    return this.captchaRepository.remove(captcha);
   }
 
-  async isCaptchaExist(updateCaptchaDto: UpdateCaptchaDto): Promise<Captcha> {
-    const captcha = await this.captchaRepository.findOne({ where: updateCaptchaDto, relations: ['sourceServices'], });
-    if (!captcha) {
-      throw new BadRequestException(`captcha '${captcha}' is not found`);
-    }
+  async isCaptchaExist(query: Partial<Captcha>): Promise<Captcha> {
+    const captcha = await this.captchaRepository.findOne({ where: query, relations: ['sourceServices'] });
     return captcha;
   }
-
-
 }

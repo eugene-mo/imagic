@@ -15,8 +15,8 @@ export class CreateCaptchaDto {
     @IsNumber()
     imageLimit: number
 
-    @IsString()
-    provider?: CaptchaProvider | null = null
+    @IsOptional()
+    provider?:  string | null
 
     @IsOptional()
     sourceServices?: SourceService[] | null = null

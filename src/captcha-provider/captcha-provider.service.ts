@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCaptchaProviderDto } from './dto/create-captcha-provider.dto';
 import { UpdateCaptchaProviderDto } from './dto/update-captcha-provider.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -14,7 +14,7 @@ export class CaptchaProviderService {
   ) { }
 
   async create(createCaptchaProviderDto: CreateCaptchaProviderDto, checkExist = true) {
-    const captchaProviderName = createCaptchaProviderDto.name;
+    const captchaProviderName = createCaptchaProviderDto.name.toLowerCase();
     var providerExist;
     if (checkExist) {
       providerExist = await this.isCaptchaProviderExist({ name: captchaProviderName })
@@ -48,7 +48,7 @@ export class CaptchaProviderService {
     if (capProviderToDelete) {
       return await this.captchaProvider.remove(capProviderToDelete)
     } else {
-      throw new NotFoundError(`Captcha provider with id - ${id} is not found!`)
+      throw new NotFoundException(`Captcha provider with id - ${id} is not found!`)
     }
   }
 

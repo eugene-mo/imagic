@@ -10,5 +10,5 @@ export class CreateCaptchaProviderDto {
     name: string
 
     @IsOptional()
-    captchas?: Captcha | Captcha[] | null = null
+    captchas?: Captcha[] | null = null
 }

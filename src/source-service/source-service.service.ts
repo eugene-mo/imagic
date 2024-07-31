@@ -46,10 +46,6 @@ export class SourceServiceService {
 
   async isSourceServiceExist(updateSourceServiceDto: UpdateSourceServiceDto): Promise<SourceService> {
     const sourceService = await this.sourceServiceRepository.findOne({ where: updateSourceServiceDto });
-    if (sourceService) {
-      return sourceService;
-    } else {
-      throw new NotFoundException(`Source service by query ${updateSourceServiceDto} is not found`)
-    }
+    return sourceService;
   }
 }
