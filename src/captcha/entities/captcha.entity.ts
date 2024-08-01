@@ -15,7 +15,7 @@ export class Captcha {
 
     // Maximum number of images that can be stored on server
     @Column({ type: 'int', nullable: false })
-    imageLimit: number | null;
+    imageLimit: number;
 
     // How many images of captcha type currently stored on server
     @Column({ type: 'int', default: 0 })

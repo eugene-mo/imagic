@@ -41,5 +41,5 @@ export class Quest {
     productionLine?: ProductionLine;
 
     @OneToMany(() => Job, (job) => job.quest)
-    jobs?: Job[] | null = null;
+    jobs?: Job[];
 }
