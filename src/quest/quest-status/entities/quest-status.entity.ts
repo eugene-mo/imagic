@@ -1,20 +1,22 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { Quest } from "src/quest/entities/quest.entity";
 
 @Entity()
+@Unique(['title'])
 export class QuestStatus {
     @PrimaryGeneratedColumn({ name: 'quest_status_id' })
-    id: number
+    id: number;
 
     @Column()
-    title: string
+    title: string;
 
-    @Column()
-    description?: string | null
+    @Column({ nullable: true })
+    description?: string | null;
 
     @OneToMany(() => Quest, (quest) => quest.status)
-    quests?: Quest[] | null
+    quests?: Quest[];
 }
+
 
 // export interface IQuestStatus {
 //     LOADING         // the record of quest is created in database but image is loading

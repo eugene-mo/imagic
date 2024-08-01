@@ -1,14 +1,15 @@
 import { Captcha } from "src/captcha/entities/captcha.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Entity()
+@Unique(['name'])
 export class CaptchaProvider {
     @PrimaryGeneratedColumn()
-    id: number
+    id: number;
 
     @Column()
-    name: string
+    name: string;
 
     @OneToMany(() => Captcha, (captcha) => captcha.provider)
-    captchas?: Captcha[] | null
+    captchas?: Captcha[];
 }

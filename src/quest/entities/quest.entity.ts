@@ -20,27 +20,26 @@ export class Quest {
     @Column({ type: 'timestamptz', nullable: true })
     solvedAt: Date | null = null;
 
-    @ManyToOne(() => Task, (task) => task.quests)
+    @ManyToOne(() => Task, (task) => task.quests, { nullable: false })
     @JoinColumn({ name: 'task_id' })
     task: Task;
 
-    @ManyToOne(() => Captcha, (captcha) => captcha.quests)
+    @ManyToOne(() => Captcha, (captcha) => captcha.quests, { nullable: false })
     @JoinColumn({ name: 'captcha_id' })
     captcha: Captcha;
 
-    @ManyToOne(() => SourceService, (sourceService) => sourceService.quests)
+    @ManyToOne(() => SourceService, (sourceService) => sourceService.quests, { nullable: false })
     @JoinColumn({ name: 'service_id' })
     sourceService: SourceService;
 
-    @ManyToOne(() => QuestStatus, (questStatus) => questStatus.quests)
+    @ManyToOne(() => QuestStatus, (questStatus) => questStatus.quests, { nullable: true })
     @JoinColumn({ name: 'quest_status_id' })
     status: QuestStatus;
 
-    @ManyToOne(() => ProductionLine, (productionLine) => productionLine.quests)
+    @ManyToOne(() => ProductionLine, (productionLine) => productionLine.quests, { nullable: true })
     @JoinColumn({ name: 'production_line_id' })
     productionLine?: ProductionLine;
 
     @OneToMany(() => Job, (job) => job.quest)
-    @JoinColumn({ name: 'job_ids' })
     jobs?: Job[] | null = null;
 }
