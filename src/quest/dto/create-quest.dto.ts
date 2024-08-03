@@ -1,4 +1,3 @@
-import { ConfigService } from '@nestjs/config';
 import { IsNotEmpty, IsOptional, IsString, Validate } from 'class-validator';
 import { FileSystemStoredFile, HasMimeType, IsFile, MaxFileSize } from 'nestjs-form-data';
 

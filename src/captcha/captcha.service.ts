@@ -18,7 +18,7 @@ export class CaptchaService {
     private readonly captchaRepository: Repository<Captcha>,
     @InjectRepository(SourceService)
     private readonly sourceServiceRepository: Repository<SourceService>
-  ) {}
+  ) { }
 
   async create(createCaptchaDto: CreateCaptchaDto, checkExist = true): Promise<Captcha> {
     const captchaName = createCaptchaDto.name?.toLowerCase();
@@ -64,17 +64,26 @@ export class CaptchaService {
   }
 
   async findAll(): Promise<Captcha[]> {
-    return await this.captchaRepository.find();
+    return await this.captchaRepository.find({
+      relations: ['provider',  'sourceServices'], //relations: ['provider', 'quests', 'tasks', 'sourceServices'],
+      order: {
+        name: 'ASC',
+      }
+    }
+    );
   }
 
   findOne(id: number) {
     return `This action returns a #${id} captcha`;
   }
 
-  async update(id: number, updateCaptchaDto: UpdateCaptchaDto): Promise<Captcha> {
-    const captcha = await this.isCaptchaExist({ id });
-    if (!captcha) {
-      throw new NotFoundException(`Captcha with ID ${id} not found`);
+  async update(id: number, updateCaptchaDto: UpdateCaptchaDto, checkExist = true): Promise<Captcha> {
+    let captcha;
+    if (checkExist) {
+      captcha = await this.isCaptchaExist({ id });
+      if (!captcha) {
+        throw new NotFoundException(`Captcha with ID ${id} not found`);
+      }
     }
 
     const { name, imageLimit, provider } = updateCaptchaDto;
@@ -128,7 +137,7 @@ export class CaptchaService {
   }
 
   async isCaptchaExist(query: Partial<Captcha>): Promise<Captcha> {
-    const captcha = await this.captchaRepository.findOne({ where: query, relations: ['sourceServices'] });
+    const captcha = await this.captchaRepository.findOne({ where: query });
     return captcha;
   }
 }

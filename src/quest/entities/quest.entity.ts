@@ -20,15 +20,15 @@ export class Quest {
     @Column({ type: 'timestamptz', nullable: true })
     solvedAt: Date | null = null;
 
-    @ManyToOne(() => Task, (task) => task.quests, { nullable: false })
+    @ManyToOne(() => Task, (task) => task.quests, { nullable: false, onDelete: 'CASCADE' })
     @JoinColumn({ name: 'task_id' })
     task: Task;
 
-    @ManyToOne(() => Captcha, (captcha) => captcha.quests, { nullable: false })
+    @ManyToOne(() => Captcha, (captcha) => captcha.quests, { nullable: false, onDelete: 'CASCADE' })
     @JoinColumn({ name: 'captcha_id' })
     captcha: Captcha;
 
-    @ManyToOne(() => SourceService, (sourceService) => sourceService.quests, { nullable: false })
+    @ManyToOne(() => SourceService, (sourceService) => sourceService.quests, { nullable: false, onDelete: 'CASCADE' })
     @JoinColumn({ name: 'service_id' })
     sourceService: SourceService;
 
@@ -41,5 +41,5 @@ export class Quest {
     productionLine?: ProductionLine;
 
     @OneToMany(() => Job, (job) => job.quest)
-    jobs?: Job[];
+    jobs?: Job[] | null = null;
 }

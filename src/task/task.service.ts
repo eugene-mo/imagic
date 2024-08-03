@@ -20,18 +20,20 @@ export class TaskService {
     if (text && !image) {
       const taskExist = await this.isTaskExist(createTaskDto);
       if (taskExist) {
-        new BadRequestException(`Task type already exist is not found`);
+        throw new BadRequestException(`Task type already exist is not found`);
       }
       return await this.taskRepository.save({ type: 'text', text: text })
     } else if (image && !text) {
       const createTask = await this.taskRepository.save({ type: 'image' });
       this.saveTaskImage(createTask.id, image)
     }
-    new BadRequestException({ message: `Unsolvable new Task creation case! Task should have only text or only image description` })
+    throw new BadRequestException({ message: `Unsolvable new Task creation case! Task should have only text or only image description` })
   }
 
   async findAll(): Promise<Task[]> {
-    return await this.taskRepository.find()
+    return await this.taskRepository.find({
+      relations: ['captchas'],
+    })
   }
 
   findOne(id: number) {
@@ -59,6 +61,6 @@ export class TaskService {
 
   async saveTaskImage(fileName, taskImg): Promise<void> {
     const TASK_IMAGE_SAVE_PATH = '../static/task-image/';
-    await this.saveImgService.saveImage({ data: taskImg, path: TASK_IMAGE_SAVE_PATH, fileName, tryToCompress: true });
+    await this.saveImgService.saveJpgImg({ data: taskImg, path: TASK_IMAGE_SAVE_PATH, fileName, tryToCompress: true });
   }
 }

@@ -19,7 +19,7 @@ export class SourceServiceService {
     if (checkExist) { sourceServiceExist = await this.isSourceServiceExist({ name: serviceName }) }
 
     if (sourceServiceExist) {
-      new BadRequestException(`Source Service with nae '${serviceName} already exist!`)
+      throw new BadRequestException(`Source Service with name '${serviceName}' already exist!`)
     } else {
       return await this.sourceServiceRepository.save({
         name: serviceName
@@ -29,7 +29,9 @@ export class SourceServiceService {
 
   async findAll(): Promise<SourceService[]> {
     console.log('Getting all services list')
-    return await this.sourceServiceRepository.find();
+    return await this.sourceServiceRepository.find({
+      relations: ['captchas'],//relations: ['provider', 'quests', 'tasks', 'sourceServices'],
+    });
   }
 
   findOne(id: number) {
@@ -45,7 +47,9 @@ export class SourceServiceService {
   }
 
   async isSourceServiceExist(updateSourceServiceDto: UpdateSourceServiceDto): Promise<SourceService> {
-    const sourceService = await this.sourceServiceRepository.findOne({ where: updateSourceServiceDto });
-    return sourceService;
+    console.log(23123123)
+    const serv = await this.sourceServiceRepository.findOne({ where: updateSourceServiceDto });
+    console.log('Found service:', serv)
+    return serv;
   }
 }

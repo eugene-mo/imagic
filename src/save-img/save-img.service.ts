@@ -9,9 +9,13 @@ interface SaveImgOptions {
   tryToCompress?: boolean;
 }
 
+const DEF_IMG_SAVE_PATH = {
+  TASK: '../static/task-image',
+  ORIGINAL: '../static/original-image'
+}
 @Injectable()
 export class SaveImgService {
-  async saveImage(options: SaveImgOptions): Promise<void> {
+  async saveJpgImg(options: SaveImgOptions): Promise<void> {
     const { data, path, fileName, tryToCompress = false } = options;
 
     // Ensure directory exists
@@ -22,18 +26,27 @@ export class SaveImgService {
 
     // Optionally compress the image
     const processedImage = tryToCompress
-      ? await this.compressImage(imageData)
+      ? await this.compressJpgImg(imageData)
       : imageData;
 
     // Write the image to the specified path
     await fs.writeFile(`${path}/${fileName}`, processedImage);
   }
 
-  private async compressImage(imageData: Buffer): Promise<Buffer> {
+  private async compressJpgImg(imageData: Buffer, quality = 80): Promise<Buffer> {
     try {
-      return await sharp(imageData).toFormat('jpeg', { quality: 80 }).toBuffer();
+      return await sharp(imageData).toFormat('jpeg', { quality }).toBuffer();
     } catch (error) {
       throw new BadRequestException('Failed to compress image');
     }
+  }
+
+  async saveQuestOriginalImage({ imgName, imgData, tryToCompress = false }) {
+    return await this.saveJpgImg({
+      data: imgData,
+      path: DEF_IMG_SAVE_PATH.ORIGINAL,
+      fileName: imgName,
+      tryToCompress
+    })
   }
 }

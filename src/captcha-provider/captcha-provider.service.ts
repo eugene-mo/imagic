@@ -21,7 +21,7 @@ export class CaptchaProviderService {
     }
 
     if (providerExist) {
-      new BadRequestException(`Captcha provider with name "${captchaProviderName}" already exist!`)
+      throw new BadRequestException(`Captcha provider with name "${captchaProviderName}" already exist!`)
     }
 
     const newProvider = await this.captchaProvider.save({
@@ -32,7 +32,9 @@ export class CaptchaProviderService {
   }
 
   async findAll(): Promise<CaptchaProvider[] | CaptchaProvider> {
-    return await this.captchaProvider.find();
+    return await this.captchaProvider.find(
+      { relations: ['captchas'], }
+    );
   }
 
   findOne(id: number) {
