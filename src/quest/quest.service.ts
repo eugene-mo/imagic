@@ -8,7 +8,7 @@ import { CaptchaService } from 'src/captcha/captcha.service';
 import { TaskService } from 'src/task/task.service';
 import { SaveImgService } from 'src/save-img/save-img.service';
 
-const DEFAULT_CAPTCHA_IMG_LIMIT = 3;
+const DEFAULT_CAPTCHA_IMG_LIMIT = 10000;
 const CREATE_RECORDS_IF_THEY_NOT_EXIST = true;
 
 @Injectable()
@@ -97,7 +97,7 @@ export class QuestService {
     try {
       const savedQuest = await this.questRepository.save(newQuest);
       const saveQuestImgName = `${savedQuest.id}.jpg`;
-      await this.imgService.saveQuestOriginalImage({ imgName: saveQuestImgName, imgData: questImage });
+      await this.imgService.saveQuestOriginalImage({ imgName: saveQuestImgName, imgData: questImage, compressQuality: 25 });
 
       // Увеличение счетчика imageNum в капче
       captchaExist.imageNum += 1;
