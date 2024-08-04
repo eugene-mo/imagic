@@ -1,22 +1,26 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { promises as fs } from 'fs';
 import * as sharp from 'sharp';
+import { FileSystemStoredFile, MemoryStoredFile } from 'nestjs-form-data';
 
 interface SaveImgOptions {
   data: Buffer | string;
   path: string;
   fileName: string;
-  tryToCompress?: boolean;
+  compressQuality?: number;
 }
 
 const DEF_IMG_SAVE_PATH = {
   TASK: '../static/task-image',
   ORIGINAL: '../static/original-image'
-}
+};
+
+const DEF_COMPRESSION_QUALITY = 100 // no compression
+
 @Injectable()
 export class SaveImgService {
   async saveJpgImg(options: SaveImgOptions): Promise<void> {
-    const { data, path, fileName, tryToCompress = false } = options;
+    const { data, path, fileName, compressQuality = 100 } = options;
 
     // Ensure directory exists
     await fs.mkdir(path, { recursive: true });
@@ -25,15 +29,15 @@ export class SaveImgService {
     const imageData = Buffer.isBuffer(data) ? data : Buffer.from(data, 'base64');
 
     // Optionally compress the image
-    const processedImage = tryToCompress
-      ? await this.compressJpgImg(imageData)
+    const processedImage = compressQuality != 100
+      ? await this.compressJpgImg(imageData, compressQuality)
       : imageData;
 
     // Write the image to the specified path
     await fs.writeFile(`${path}/${fileName}`, processedImage);
   }
 
-  private async compressJpgImg(imageData: Buffer, quality = 80): Promise<Buffer> {
+  private async compressJpgImg(imageData: Buffer, quality = DEF_COMPRESSION_QUALITY): Promise<Buffer> {
     try {
       return await sharp(imageData).toFormat('jpeg', { quality }).toBuffer();
     } catch (error) {
@@ -41,12 +45,21 @@ export class SaveImgService {
     }
   }
 
-  async saveQuestOriginalImage({ imgName, imgData, tryToCompress = false }) {
+  async saveQuestOriginalImage({ imgName, imgData, compressQuality = DEF_COMPRESSION_QUALITY }) {
+    const buffer = await this.convertToBuffer(imgData);
     return await this.saveJpgImg({
-      data: imgData,
+      data: buffer,
       path: DEF_IMG_SAVE_PATH.ORIGINAL,
       fileName: imgName,
-      tryToCompress
-    })
+      compressQuality
+    });
+  }
+
+  private async convertToBuffer(file: FileSystemStoredFile): Promise<Buffer> {
+    if (file instanceof MemoryStoredFile) {
+      return file.buffer;
+    } else {
+      return fs.readFile(file.path);
+    }
   }
 }

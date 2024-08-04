@@ -65,7 +65,7 @@ export class CaptchaService {
 
   async findAll(): Promise<Captcha[]> {
     return await this.captchaRepository.find({
-      relations: ['provider',  'sourceServices'], //relations: ['provider', 'quests', 'tasks', 'sourceServices'],
+      relations: ['provider', 'sourceServices'], //relations: ['provider', 'quests', 'tasks', 'sourceServices'],
       order: {
         name: 'ASC',
       }
@@ -86,7 +86,7 @@ export class CaptchaService {
       }
     }
 
-    const { name, imageLimit, provider } = updateCaptchaDto;
+    const { name, imageLimit, provider, imageNum } = updateCaptchaDto;
 
     if (name) {
       captcha.name = name;
@@ -95,6 +95,11 @@ export class CaptchaService {
     if (imageLimit !== undefined) {
       captcha.imageLimit = imageLimit;
     }
+    
+    if (imageNum !== undefined) {
+      captcha.imageNum = imageNum;
+    }
+
 
     if (provider) {
       const captchaProvider = await this.captchaProviderService.isCaptchaProviderExist({ name: provider });

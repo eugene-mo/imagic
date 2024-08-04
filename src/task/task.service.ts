@@ -14,13 +14,16 @@ export class TaskService {
     private readonly saveImgService: SaveImgService
   ) { }
 
-  async create(createTaskDto: CreateTaskDto) {
+  async create(createTaskDto: CreateTaskDto, checkExist = true) {
     //****in current version task only can have 'text' or only 'image' (cant create task with text and image in one request)
     const { image, text } = createTaskDto;
     if (text && !image) {
-      const taskExist = await this.isTaskExist(createTaskDto);
+      let taskExist;
+      if (checkExist) {
+        taskExist = await this.isTaskExist(createTaskDto);
+      }
       if (taskExist) {
-        throw new BadRequestException(`Task type already exist is not found`);
+        throw new BadRequestException(`Can't create task! Task type already exist!`);
       }
       return await this.taskRepository.save({ type: 'text', text: text })
     } else if (image && !text) {
@@ -61,6 +64,6 @@ export class TaskService {
 
   async saveTaskImage(fileName, taskImg): Promise<void> {
     const TASK_IMAGE_SAVE_PATH = '../static/task-image/';
-    await this.saveImgService.saveJpgImg({ data: taskImg, path: TASK_IMAGE_SAVE_PATH, fileName, tryToCompress: true });
+    await this.saveImgService.saveJpgImg({ data: taskImg, path: TASK_IMAGE_SAVE_PATH, fileName, compressQuality: 100 });
   }
 }
