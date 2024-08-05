@@ -11,8 +11,8 @@ interface SaveImgOptions {
 }
 
 const DEF_IMG_SAVE_PATH = {
-  TASK: '../static/task-image',
-  ORIGINAL: '../static/original-image'
+  TASK: './static/task-image',
+  ORIGINAL: './static/original-image'
 };
 
 const DEF_COMPRESSION_QUALITY = 100 // no compression

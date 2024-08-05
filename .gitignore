@@ -2,7 +2,13 @@
 /dist
 /node_modules
 /build
-
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.svg
+*.ico
+*.webp
 # Logs
 logs
 *.log
