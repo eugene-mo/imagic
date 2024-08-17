@@ -73,8 +73,8 @@ export class CaptchaService {
     );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} captcha`;
+  async findOne(id: number) {
+    return await this.captchaRepository.findOne({ where: { id } })
   }
 
   async update(id: number, updateCaptchaDto: UpdateCaptchaDto, checkExist = true): Promise<Captcha> {
@@ -95,7 +95,7 @@ export class CaptchaService {
     if (imageLimit !== undefined) {
       captcha.imageLimit = imageLimit;
     }
-    
+
     if (imageNum !== undefined) {
       captcha.imageNum = imageNum;
     }

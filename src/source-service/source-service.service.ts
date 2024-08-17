@@ -34,22 +34,31 @@ export class SourceServiceService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} sourceService`;
+  async findOne(id: number) {
+    return await this.sourceServiceRepository.findOne({
+      where: { id },
+      relations: ['captchas']
+    })
   }
 
-  update(id: number, updateSourceServiceDto: UpdateSourceServiceDto) {
-    return `This action updates a #${id} sourceService`;
+  async update(id: number, updateSourceServiceDto: UpdateSourceServiceDto) {
+    const serviceExist = this.isSourceServiceExist({ id: id });
+    if (serviceExist) {
+      return await this.sourceServiceRepository.update(id, updateSourceServiceDto);
+    }
+    throw new NotFoundException(`Can't UPDATE. Service with id : ${id} was not found!`);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} sourceService`;
+  async remove(id: number) {
+    const serviceExist = this.isSourceServiceExist({ id: id });
+    if (serviceExist) {
+      return await this.sourceServiceRepository.delete(id);
+    }
+    throw new NotFoundException(`Can't DELETE. Service with id : ${id} was not found!`);
   }
 
   async isSourceServiceExist(updateSourceServiceDto: UpdateSourceServiceDto): Promise<SourceService> {
-    console.log(23123123)
-    const serv = await this.sourceServiceRepository.findOne({ where: updateSourceServiceDto });
-    console.log('Found service:', serv)
-    return serv;
+    const service = await this.sourceServiceRepository.findOne({ where: updateSourceServiceDto });
+    return service;
   }
 }

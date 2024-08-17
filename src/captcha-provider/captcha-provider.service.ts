@@ -37,8 +37,8 @@ export class CaptchaProviderService {
     );
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} captchaProvider`;
+  async findOne(id: number) {
+    return await this.captchaProvider.findOne({ where: { id } })
   }
 
   update(id: number, updateCaptchaProviderDto: UpdateCaptchaProviderDto) {

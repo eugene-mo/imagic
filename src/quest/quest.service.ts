@@ -7,9 +7,11 @@ import { SourceServiceService } from 'src/source-service/source-service.service'
 import { CaptchaService } from 'src/captcha/captcha.service';
 import { TaskService } from 'src/task/task.service';
 import { SaveImgService } from 'src/save-img/save-img.service';
+import { UpdateQuestDto } from './dto/update-quest.dto';
 
 const DEFAULT_CAPTCHA_IMG_LIMIT = 10000;
 const CREATE_RECORDS_IF_THEY_NOT_EXIST = true;
+const DEFAULT_PAGINATION_SIZE = 30;
 
 @Injectable()
 export class QuestService {
@@ -113,6 +115,10 @@ export class QuestService {
   async findAll() {
     //get all quests data
     return await this.questRepository.find({
+      order: {
+        createdAt: 'DESC',
+      },
+      take: DEFAULT_PAGINATION_SIZE,
       relations: ['task', 'captcha', 'sourceService', 'status', 'productionLine', 'jobs'],
     });
   }
@@ -125,12 +131,27 @@ export class QuestService {
     });
   }
 
-  async update(id: number, updateQuestDto: any) {
-    // update quest method
+  async update(id: number, updateQuestDto) {
+    const questExist = this.isQuestExist({ id: id });
+    if (questExist) {
+      return await this.questRepository.update(id, updateQuestDto);
+    }
+    throw new NotFoundException(`Can't UPDATE. Quest with id : ${id} was not found!`)
   }
 
   async remove(id: number) {
     //remove quest by id
-    return await this.questRepository.delete(id);
+    const questExist = this.isQuestExist({ id: id });
+    if (questExist) {
+      return await this.questRepository.delete(id);
+    }
+    throw new NotFoundException(`Can't DELETE. Quest with id : ${id} was not found!`)
   }
+
+  async isQuestExist(updateQuestDto): Promise<Quest> {
+    return await this.questRepository.findOne({
+      where: updateQuestDto
+    })
+  }
+
 }

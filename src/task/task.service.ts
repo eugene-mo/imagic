@@ -39,8 +39,8 @@ export class TaskService {
     })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
+  async findOne(id: number) {
+    return await this.taskRepository.findOne({ where: { id } })
   }
 
   update(id: number, updateTaskDto: UpdateTaskDto) {
@@ -48,7 +48,7 @@ export class TaskService {
   }
 
   async remove(id: number) {
-    return this.taskRepository.remove(await this.isTaskExist({ id }))
+    return await this.taskRepository.remove(await this.isTaskExist({ id }))
   }
 
   async removeAll() {
