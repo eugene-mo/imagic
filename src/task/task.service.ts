@@ -62,8 +62,8 @@ export class TaskService {
     return taskExist;
   }
 
-  async saveTaskImage(fileName, taskImg): Promise<void> {
+  async saveTaskImage(fileName, taskImg) {
     const TASK_IMAGE_SAVE_PATH = '../static/task-image/';
-    await this.saveImgService.saveJpgImg({ data: taskImg, path: TASK_IMAGE_SAVE_PATH, fileName, compressQuality: 100 });
+    return await this.saveImgService.saveJpgImg({ data: taskImg, path: TASK_IMAGE_SAVE_PATH, fileName, compressQuality: 100 });
   }
 }

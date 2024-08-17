@@ -34,7 +34,7 @@ export class SaveImgService {
       : imageData;
 
     // Write the image to the specified path
-    await fs.writeFile(`${path}/${fileName}`, processedImage);
+    return fs.writeFile(`${path}/${fileName}`, processedImage);
   }
 
   private async compressJpgImg(imageData: Buffer, quality = DEF_COMPRESSION_QUALITY): Promise<Buffer> {
