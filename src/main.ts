@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './app.module.js';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -9,8 +10,10 @@ async function bootstrap() {
       transform: true
     })
   );
+  const configService = app.get(ConfigService);
+  const port = configService.get<number>('SERVER_PORT') || 3000;
   app.enableCors();
   app.setGlobalPrefix('api');
-  await app.listen(3003);
+  await app.listen(port);
 }
 bootstrap();

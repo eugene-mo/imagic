@@ -19,6 +19,7 @@ import { AuthModule } from './auth/auth.module';
 import { MemoryStoredFile, NestjsFormDataModule } from 'nestjs-form-data';
 import { SaveImgModule } from './save-img/save-img.module';
 import { QuestStatusModule } from './quest/quest-status/quest-status.module';
+import { TranslationModule } from './translation/translation.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { QuestStatusModule } from './quest/quest-status/quest-status.module';
     SolutionTypeModule,
     AuthModule,
     SaveImgModule,
+    TranslationModule,
     // QuestStatusModule
   ],
   controllers: [AppController],

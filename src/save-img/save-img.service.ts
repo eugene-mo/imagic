@@ -1,6 +1,6 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { promises as fs } from 'fs';
-import * as sharp from 'sharp';
+import sharp from 'sharp'
 import { FileSystemStoredFile, MemoryStoredFile } from 'nestjs-form-data';
 
 interface SaveImgOptions {
