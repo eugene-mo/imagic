@@ -8,6 +8,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class TranslationService {
   private openai: OpenAI;
+  private openai_api_key = this.configService.get<string>('OPENAI_KEY');
 
   constructor(
     @InjectRepository(Translation)
@@ -15,12 +16,13 @@ export class TranslationService {
     private configService: ConfigService
   ) {
     this.openai = new OpenAI({
-      apiKey: this.configService.get<string>('OPENAI_KEY'),
+      apiKey: this.openai_api_key,
     });
   }
 
   // Проверяем, есть ли перевод в базе данных
   async translateText(text: string): Promise<{ language: string; translation: string }> {
+
     const existingTranslation = await this.translationRepository.findOne({
       where: { originalText: text },
     });
@@ -33,25 +35,30 @@ export class TranslationService {
       };
     }
 
-    // Если перевода нет, делаем запрос в OpenAI
+    // Если перевода нет, делаем запрос в openai
     try {
-      const prompt = `Определи язык этого текста: '${text}' и переведи его на английский. Укажи код языка в формате ISO 639-1, затем переведенный текст.`;
+      console.log('Send API request with key: ', this.openai_api_key);
 
-      const response = await this.openai.completions.create({
+      const response = await this.openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
-        prompt: prompt,
+        messages: [{ role: 'system', content: "Определи язык и переведи на en. Формат ответа: 'ISO 3166-1 of origin lang|translate'" }, { role: 'user', content: text }],
         max_tokens: 150,
         temperature: 0.3,
       });
 
-      const responseText = response.choices[0].text.trim().toLowerCase();
-      const [language, ...translationArr] = responseText.split('\n');
-      const translation = translationArr.join(' ').trim();
-
+      console.log('OpenAI full response: ', response);
+      console.log('OpenAI message: ', response.choices[0].message);
+      
+      const responseText = response.choices[0].message.content.trim().toLowerCase();
+      const [languagePart, translationPart] = responseText.split('|');
+      
+      const language = languagePart.trim().slice(0, 2);  // Оставляем только 2 символа для ISO-кода
+      const translation = translationPart.trim();
+      
       // Сохраняем перевод в базе данных
       const newTranslation = this.translationRepository.create({
-        originalText: text,
-        language: language.replace('language:', '').trim(),
+        originalText: text.trim().toLowerCase(),
+        language: language,
         translatedText: translation,
       });
       await this.translationRepository.save(newTranslation);
@@ -61,9 +68,10 @@ export class TranslationService {
         translation: newTranslation.translatedText,
       };
     } catch (error) {
+      console.log('OPENAI Response error: ', error);
       if (error.status === 429) {
         throw new HttpException(
-          'ChatGPT translation quota exceeded. Please check your usage and try again later.',
+          'ChatGPT translation quota exceeded. Please check your BALANCE and try again later.',
           HttpStatus.TOO_MANY_REQUESTS,
         );
       } else {

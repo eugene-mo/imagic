@@ -8,9 +8,12 @@ import { CaptchaService } from 'src/captcha/captcha.service';
 import { TaskService } from 'src/task/task.service';
 import { SaveImgService } from 'src/save-img/save-img.service';
 import { UpdateQuestDto } from './dto/update-quest.dto';
+import { TranslationService } from 'src/translation/translation.service';
 
 const DEFAULT_CAPTCHA_IMG_LIMIT = 10000;
-const CREATE_RECORDS_IF_THEY_NOT_EXIST = true;
+const CREATE_CAPTCHA_RECORDS_IF_THEY_NOT_EXIST = true;
+const CREATE_SERVICE_RECORDS_IF_THEY_NOT_EXIST = false;
+const TRANSLATE_TASK_TEXT_TO_ENG = true;
 const DEFAULT_PAGINATION_SIZE = 30;
 
 @Injectable()
@@ -21,6 +24,7 @@ export class QuestService {
     private readonly sourceServiceService: SourceServiceService,
     private readonly captchaService: CaptchaService,
     private readonly taskService: TaskService,
+    private readonly translationService: TranslationService,
     private readonly imgService: SaveImgService
   ) { }
 
@@ -30,10 +34,14 @@ export class QuestService {
     const captcha = createQuestDto.captcha.toLowerCase();
     const taskText = createQuestDto.taskText?.toLowerCase();
 
+    if (!taskText) {
+      throw new BadRequestException(`Task text is required to create a task.`);
+    }
+
     // checking is service exist
     let serviceExist = await this.sourceServiceService.isSourceServiceExist({ name: service });
     if (!serviceExist) {
-      if (CREATE_RECORDS_IF_THEY_NOT_EXIST) {
+      if (CREATE_SERVICE_RECORDS_IF_THEY_NOT_EXIST) {
         serviceExist = await this.sourceServiceService.create({ name: service }, false);
       } else {
         throw new NotFoundException(`Service '${service}' was not found!`);
@@ -45,7 +53,7 @@ export class QuestService {
     let captchaExist = await this.captchaService.isCaptchaExist({ name: captcha });
     console.log(captchaExist);
     if (!captchaExist) {
-      if (CREATE_RECORDS_IF_THEY_NOT_EXIST) {
+      if (CREATE_CAPTCHA_RECORDS_IF_THEY_NOT_EXIST) {
         captchaExist = await this.captchaService.create({ name: captcha, imageLimit: DEFAULT_CAPTCHA_IMG_LIMIT }, false);
       } else {
         throw new NotFoundException(`Captcha '${captcha}' was not found!`);
@@ -69,26 +77,29 @@ export class QuestService {
 
     // Checking if task exist
     let taskExist;
-    if (taskText) {
-      taskExist = await this.taskService.isTaskExist({ text: taskText });
-      if (!taskExist) {
-        taskExist = await this.taskService.create({ image: taskImage, text: taskText }, false);
-      }
-
-      // checking relationships between captcha and task
-      const isTaskPairedWithCaptcha = captchaExist.tasks?.some(existingTask => existingTask.id === taskExist.id);
-      if (!isTaskPairedWithCaptcha) {
-        if (!captchaExist.tasks) {
-          captchaExist.tasks = [];
-        }
-        captchaExist.tasks.push(taskExist);
-        await this.captchaService.update(captchaExist.id, { tasks: captchaExist.tasks });
-      }
+    let finalTaskText;
+    if (TRANSLATE_TASK_TEXT_TO_ENG) {
+      finalTaskText = (await this.translationService.translateText(taskText)).translation;
     } else {
-      throw new BadRequestException(`Task text is required to create a task.`);
+      finalTaskText = taskText.trim().toLowerCase();
     }
 
-    // Creating ans save quest
+    taskExist = await this.taskService.isTaskExist({ text: finalTaskText });
+    if (!taskExist) {
+      taskExist = await this.taskService.create({ image: taskImage, text: finalTaskText }, false);
+    }
+
+    // checking relationships between captcha and task
+    const isTaskPairedWithCaptcha = captchaExist.tasks?.some(existingTask => existingTask.id === taskExist.id);
+    if (!isTaskPairedWithCaptcha) {
+      if (!captchaExist.tasks) {
+        captchaExist.tasks = [];
+      }
+      captchaExist.tasks.push(taskExist);
+      await this.captchaService.update(captchaExist.id, { tasks: captchaExist.tasks });
+    }
+
+    // Creating and save quest
     const newQuest = this.questRepository.create({
       sourceService: serviceExist,
       task: taskExist,
@@ -96,9 +107,10 @@ export class QuestService {
       createdAt: new Date(),
     });
 
+    let savedQuest, saveQuestImgName;
     try {
-      const savedQuest = await this.questRepository.save(newQuest);
-      const saveQuestImgName = `${savedQuest.id}.jpg`;
+      savedQuest = await this.questRepository.save(newQuest);
+      saveQuestImgName = `${savedQuest.id}.jpg`;
       await this.imgService.saveQuestOriginalImage({ imgName: saveQuestImgName, imgData: questImage, compressQuality: 25 });
 
       // Counter change in DB
@@ -107,7 +119,9 @@ export class QuestService {
 
       return savedQuest;
     } catch (e) {
-      await this.taskService.remove(taskExist.id);
+      // await this.taskService.remove(taskExist.id);
+      console.log('IMAGE SAVING ERROR')
+      console.log(e)
       throw e;
     }
   }
