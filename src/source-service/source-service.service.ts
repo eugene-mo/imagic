@@ -4,6 +4,7 @@ import { UpdateSourceServiceDto } from './dto/update-source-service.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SourceService } from './entities/source-service.entity';
 import { Repository } from 'typeorm';
+import { CreateSourceServiceBulkDto } from './dto/create-source-service-bulk.dto';
 
 @Injectable()
 export class SourceServiceService {
@@ -25,6 +26,29 @@ export class SourceServiceService {
         name: serviceName
       })
     }
+  }
+
+  async createMany(createSourceServiceBulkDto: CreateSourceServiceBulkDto, checkExist = true): Promise<SourceService[]> {
+    console.log('Создание нескольких сервисов');
+    const createdServices: SourceService[] = [];
+    
+    for (const name of createSourceServiceBulkDto.names) {
+      try {
+        const serviceDto = new CreateSourceServiceDto();
+        serviceDto.name = name;
+        const createdService = await this.create(serviceDto, checkExist);
+        createdServices.push(createdService as SourceService);
+      } catch (error) {
+        if (error instanceof BadRequestException) {
+          // Игнорируем ошибку, если сервис уже существует
+          console.log(`Сервис с именем '${name}' уже существует, пропускаем.`);
+        } else {
+          throw error;
+        }
+      }
+    }
+    
+    return createdServices;
   }
 
   async findAll(): Promise<SourceService[]> {
