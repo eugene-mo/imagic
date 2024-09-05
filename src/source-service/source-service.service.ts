@@ -40,8 +40,7 @@ export class SourceServiceService {
         createdServices.push(createdService as SourceService);
       } catch (error) {
         if (error instanceof BadRequestException) {
-          // Игнорируем ошибку, если сервис уже существует
-          console.log(`Сервис с именем '${name}' уже существует, пропускаем.`);
+          console.log(`Сервис с именем '${name}' уже существует`);
         } else {
           throw error;
         }
