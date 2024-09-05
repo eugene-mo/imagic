@@ -29,7 +29,7 @@ export class SourceServiceService {
   }
 
   async createMany(createSourceServiceBulkDto: CreateSourceServiceBulkDto, checkExist = true): Promise<SourceService[]> {
-    console.log('Создание нескольких сервисов');
+    console.log('Creating few services...');
     const createdServices: SourceService[] = [];
     
     for (const name of createSourceServiceBulkDto.names) {
@@ -40,7 +40,7 @@ export class SourceServiceService {
         createdServices.push(createdService as SourceService);
       } catch (error) {
         if (error instanceof BadRequestException) {
-          console.log(`Сервис с именем '${name}' уже существует`);
+          console.log(`Service with '${name}' is already exist`);
         } else {
           throw error;
         }
