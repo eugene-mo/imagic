@@ -48,13 +48,13 @@ export class TranslationService {
 
       console.log('OpenAI full response: ', response);
       console.log('OpenAI message: ', response.choices[0].message);
-      
+
       const responseText = response.choices[0].message.content.trim().toLowerCase();
       const [languagePart, translationPart] = responseText.split('|');
-      
+
       const language = languagePart.trim().slice(0, 2);  // Оставляем только 2 символа для ISO-кода
       const translation = translationPart.trim();
-      
+
       // Сохраняем перевод в базе данных
       const newTranslation = this.translationRepository.create({
         originalText: text.trim().toLowerCase(),
@@ -81,5 +81,33 @@ export class TranslationService {
         );
       }
     }
+  }
+
+  async findOne(id: number): Promise<Translation> {
+    const translation = await this.translationRepository.findOne({ where: { id } });
+    if (!translation) {
+      throw new HttpException('Translation not found', HttpStatus.NOT_FOUND);
+    }
+    return translation;
+  }
+
+  async remove(id: number): Promise<void> {
+    const translation = await this.findOne(id);
+    await this.translationRepository.remove(translation);
+  }
+
+  async removeAllTranslations(): Promise<void> {
+    await this.translationRepository.clear(); 
+  }
+
+  async update(id: number, updateTranslationDto: Partial<Translation>): Promise<Translation> {
+    const translation = await this.findOne(id);
+    const updatedTranslation = Object.assign(translation, updateTranslationDto);
+    return await this.translationRepository.save(updatedTranslation);
+  }
+
+  async findByFields(fields: Partial<Translation>): Promise<Translation | undefined> {
+    const translation = await this.translationRepository.findOne({ where: fields });
+    return translation;
   }
 }
