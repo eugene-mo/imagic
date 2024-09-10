@@ -55,7 +55,7 @@ export class SourceServiceService {
     return await this.sourceServiceRepository.find({
       relations: ['captchas'],//relations: ['provider', 'quests', 'tasks', 'sourceServices'],
       order: {
-        name: 'ASC', // сортировка по возрастанию (алфавиту)
+        name: 'ASC',
       },
     });
   }

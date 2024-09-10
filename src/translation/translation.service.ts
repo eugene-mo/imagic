@@ -41,7 +41,7 @@ export class TranslationService {
 
       const response = await this.openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
-        messages: [{ role: 'system', content: "Определи язык и переведи на en. Формат ответа: 'ISO 3166-1 of origin lang|translate'" }, { role: 'user', content: text }],
+        messages: [{ role: 'system', content: "Определи язык текста и переведи на eng. Отвечай в формате: 'Alpha-2 of origin lang|translation'" }, { role: 'user', content: `"${text}` }],
         max_tokens: 150,
         temperature: 0.3,
       });
