@@ -41,7 +41,7 @@ export class TranslationService {
 
       const response = await this.openai.chat.completions.create({
         model: 'gpt-3.5-turbo',
-        messages: [{ role: 'system', content: "Определи язык текста и переведи на eng. Отвечай в формате: 'Alpha-2 of origin lang|translation'" }, { role: 'user', content: `"${text}` }],
+        messages: [{ "role": "system", "content": "You translation assist. Detect the lang of text and translate it to En. The output should be in the format: ISO 3166-1 alpha-2 language code | translated text." }, { role: 'user', content: `${text}` }],
         max_tokens: 150,
         temperature: 0.3,
       });
@@ -97,7 +97,7 @@ export class TranslationService {
   }
 
   async removeAllTranslations(): Promise<void> {
-    await this.translationRepository.clear(); 
+    await this.translationRepository.clear();
   }
 
   async update(id: number, updateTranslationDto: Partial<Translation>): Promise<Translation> {
